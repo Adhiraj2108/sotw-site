@@ -1,0 +1,15 @@
+{
+  "name": "studio-off-the-wall",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "^7.4.5",
+    "hls.js": "^1.7.4",
+    "lottie-web": "^5.13.0"
+  }
+}

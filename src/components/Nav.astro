@@ -1,0 +1,83 @@
+<header id="studio-navigation">
+  <nav aria-label="Studio">
+    <a class="brand" href="/">
+      <small>00 Studio</small>
+      <span>Studio Off the Wall</span>
+    </a>
+    <div class="wide">
+      <small>Designers</small>Adhiraj
+      <br />
+      Swarnima
+    </div>
+    <div class="wide">
+      <small>What</small>An independent design studio based
+      <br /> out of New Delhi.
+    </div>
+    <div class="right">
+      <small>Contact</small>
+      <a href="/contact">Get in Touch</a>
+    </div>
+  </nav>
+</header>
+<script>
+  const nav = document.getElementById("studio-navigation")!;
+  const compact = () => nav.classList.toggle("scrolled", scrollY > 90);
+  compact();
+  addEventListener("scroll", compact, { passive: true });
+</script>
+<style>
+  header {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 10;
+    pointer-events: none;
+  }
+  nav {
+    display: grid;
+    grid-template-columns: 27.85% 27.85% 1fr auto;
+    padding: 12px 16px;
+    font:
+      14px/1.4 TimesCyr,
+      serif;
+  }
+  nav a {
+    pointer-events: auto;
+  }
+  small {
+    display: block;
+    color: var(--muted);
+    margin-bottom: 3px;
+  }
+  .brand {
+    text-decoration: none;
+  }
+  .brand span {
+    padding-left: 22px;
+  }
+  .right {
+    text-align: right;
+  }
+  .right a:hover,
+  .brand:hover {
+    text-decoration: underline;
+  }
+  @media (max-width: 739px) {
+    nav {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+    .wide {
+      display: none;
+    }
+    .brand span {
+      padding-left: 19px;
+    }
+  }
+  .wide {
+    transition: opacity 0.2s;
+  }
+  .scrolled .wide {
+    opacity: 0;
+  }
+</style>

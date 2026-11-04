@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://offthewall.studio/sitemap.xml

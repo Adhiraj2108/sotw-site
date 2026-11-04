@@ -1,0 +1,146 @@
+@font-face {
+  font-family: Lastik;
+  src: url(https://framerusercontent.com/assets/KHc0ojrqk3eDv32HTU61GXo7k.woff2);
+  font-display: swap;
+}
+@font-face {
+  font-family: TimesCyr;
+  src: url(https://framerusercontent.com/assets/KPHwsLPh7tKmNsN2SAJjg3U.woff2);
+  font-display: swap;
+}
+@font-face {
+  font-family: Mono;
+  src: url(https://framerusercontent.com/assets/OwOgBugJjGYiV7Add0KVExp5A.woff2);
+  font-display: swap;
+}
+@font-face {
+  font-family: Geist;
+  src: url(https://framerusercontent.com/assets/nlOBJLEsY3osQdspWig8PsdNLVA.woff2);
+  font-display: swap;
+}
+:root {
+  --ink: #000;
+  --charcoal: #141414;
+  --dark: #222;
+  --muted: #777;
+  --button: #e8e8e8;
+  --light: #f7f7f7;
+  --white: #fff;
+  --paper: #f8f8f6;
+  --blue: #2f23f2;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  color: var(--ink);
+  font:
+    20px/1.2 TimesCyr,
+    "Times New Roman",
+    serif;
+}
+h1,
+h2,
+h3,
+h4,
+p,
+figure {
+  margin: 0;
+}
+h1,
+h2,
+h3,
+h4 {
+  font-family: Lastik, serif;
+  font-weight: 400;
+}
+h2 {
+  font-size: 42px;
+  line-height: 1.15;
+}
+h3 {
+  font-size: 38px;
+  line-height: 1.1;
+}
+a {
+  color: inherit;
+}
+.mono,
+small {
+  font:
+    13px/1.7 Mono,
+    monospace;
+}
+.cta {
+  display: inline-block;
+  font:
+    14px/1.4 Mono,
+    monospace;
+}
+:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+@media (max-width: 739px) {
+  h2 {
+    font-size: 31px;
+  }
+  h3 {
+    font-size: 23px;
+  }
+  .mono,
+  small {
+    font-size: 11px;
+  }
+}
+h2 {
+  letter-spacing: -0.035em;
+}
+h3,
+h4 {
+  letter-spacing: -0.04em;
+}
+p {
+  letter-spacing: -0.015em;
+}
+.mono {
+  letter-spacing: normal;
+}
+.cta {
+  background: var(--blue);
+  color: white;
+  border-radius: 40px;
+  text-decoration: underline;
+  box-shadow: inset 0 -4px 24px 1px white;
+  padding: 22px 16px;
+}
+.cta:hover {
+  color: var(--blue);
+  background: white;
+  box-shadow: inset 0 0 0 1px var(--blue);
+}
+@media (min-width: 740px) and (max-width: 1439px) {
+  body {
+    font-size: 18px;
+  }
+  h2 {
+    font-size: 34px;
+    line-height: 1.1;
+  }
+  h3 {
+    font-size: 30px;
+  }
+}
+@media (max-width: 739px) {
+  body {
+    font-size: 15px;
+  }
+  .cta {
+    font-size: 12px;
+    padding: 20px 16px;
+  }
+}
+main {
+  overflow-x: clip;
+}

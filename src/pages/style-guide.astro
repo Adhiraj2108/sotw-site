@@ -1,0 +1,43 @@
+---
+import "../styles/base.css";
+const roles = [
+  "ink",
+  "charcoal",
+  "dark",
+  "muted",
+  "button",
+  "light",
+  "white",
+  "paper",
+  "blue",
+];
+---
+
+<html lang="en">
+  <head>
+    <title>Studio style guide</title>
+    <meta name="robots" content="noindex" />
+  </head>
+  <body style="padding:40px">
+    <h1>Studio Off The Wall</h1>
+    <h2>Visual language</h2>
+    <p>Editorial copy in Times New Roman Cyr.</p>
+    <small>SF MONO · METADATA</small>
+    <p style="font-family:Geist">Project descriptions in Geist.</p>
+    {roles.map((role) => (
+      <p>
+        <i
+          style={
+            "display:inline-block;width:80px;height:30px;background:var(--" +
+            role +
+            ");border:1px solid #ddd"
+          }
+        ></i>{" "}
+        {role}
+      </p>
+    ))}
+    <a class="cta" href="/contact">
+      Get in Touch
+    </a>
+  </body>
+</html>

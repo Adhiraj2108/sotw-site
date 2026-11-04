@@ -1,0 +1,27 @@
+---
+import "../styles/base.css";
+import home from "../data/home-seo.json";
+import contact from "../data/contact-seo.json";
+import Nav from "../components/Nav.astro";
+const seo = Astro.props.contact ? contact : home;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{seo.title}</title>
+    <link rel="canonical" href={seo.canonical} />
+    {seo.meta.map((m) => (
+      <meta {...m} />
+    ))}
+    {seo.icons.map((i) => (
+      <link {...i} />
+    ))}
+  </head>
+  <body>
+    <Nav />
+    <slot />
+  </body>
+</html>

@@ -1,0 +1,290 @@
+---
+import Page from "../layouts/Page.astro";
+import Footer from "../components/Footer.astro";
+import StudioInfo from "../components/StudioInfo.astro";
+const fields = [
+  ["Full Name*", "Name", "Jane Smith", "text"],
+  ["Company Name*", "Company", "Acme Corporation", "text"],
+  ["Email*", "Email", "jane@acme.com", "email"],
+  ["Website (if you got one)", "Website URL", "www.acme.com", "url"],
+];
+const services = [
+  "Positioning & Messaging",
+  "Visual Identity",
+  "Logo",
+  "Web Design",
+  "Web Development",
+  "Other",
+  "Not sure yet",
+];
+---
+
+<Page contact>
+  <main>
+    <section class="enquiry">
+      <div class="intro">
+        <h1>Want to work with us?</h1>
+        <p>
+          You can fill out the form or you can shoot us an email at{" "}
+          <a href="mailto:hello@offthewall.studio">hello@offthewall.studio</a>{" "}
+          to set up an introductory call.
+        </p>
+      </div>
+      <form
+        action="mailto:hello@offthewall.studio"
+        method="post"
+        enctype="text/plain"
+      >
+        <fieldset>
+          <legend>Contact details</legend>
+          {fields.map(([label, name, placeholder, type]) => (
+            <label class="contact-field">
+              <span>{label}</span>
+              <input {name} {type} {placeholder} required={type !== "url"} />
+            </label>
+          ))}
+        </fieldset>
+        <label class="block">
+          Project information*
+          <textarea
+            name="Project info"
+            required
+            placeholder="What does your company do? How long have you been in business? What are your goals for this collaboration?"
+          ></textarea>
+        </label>
+        <fieldset>
+          <legend>What services are you looking for?*</legend>
+          <p class="hint">Select all services you want to work on.</p>
+          {services.map((s, i) => (
+            <label class="check">
+              <input name={s} type="checkbox" />
+              {i === 0 ? "Brand " + s : s}
+            </label>
+          ))}
+        </fieldset>
+        <label class="block">
+          How did you hear about us?
+          <input
+            name="Recc"
+            placeholder="Was it Twitter? Or a friend recommended us?"
+          />
+        </label>
+        <label class="block">
+          Estimated budget*
+          <select name="Budget" required>
+            <option value="" disabled>
+              Select
+            </option>
+            {[
+              "Under $3,000",
+              "$3,000 - $6,000",
+              "$6,000 - $10,000",
+              "$10,000+",
+            ].map((b) => (
+              <option selected={b === "Under $3,000"}>{b}</option>
+            ))}
+          </select>
+        </label>
+        <label class="block">
+          When do you wish to launch?*
+          <input
+            name="Launch date"
+            required
+            placeholder="Share the launch date or timeline"
+          />
+        </label>
+        <button class="cta" type="submit">
+          Send Enquiry
+        </button>
+        <p class="status" role="status"></p>
+      </form>
+    </section>
+    <StudioInfo />
+  </main>
+  <Footer contact />
+</Page>
+<script>
+  const form = document.querySelector("form")!;
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const fields = new FormData(form);
+    const body = Array.from(
+      fields,
+      ([key, value]) => key + ": " + (value === "on" ? "Yes" : value),
+    ).join("\n");
+    const subject = "Project enquiry from " + fields.get("Name");
+    window.location.href =
+      "mailto:hello@offthewall.studio?subject=" +
+      encodeURIComponent(subject) +
+      "&body=" +
+      encodeURIComponent(body);
+    form.querySelector("[role=status]")!.textContent =
+      "Send your draft from your email app to complete your enquiry.";
+  });
+</script>
+<style>
+  main {
+    background: var(--paper);
+  }
+  .enquiry {
+    padding: 240px 40px 64px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+  .intro {
+    max-width: 80%;
+    position: sticky;
+    top: 120px;
+  }
+  .intro h1 {
+    font-size: 52px;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+  .intro p {
+    font-size: 18px;
+    line-height: 1.3;
+    margin-top: 16px;
+  }
+  form {
+    display: grid;
+    gap: 40px;
+  }
+  fieldset {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    min-width: 0;
+  }
+  legend,
+  .block {
+    font:
+      23px/1.2 Lastik,
+      serif;
+    letter-spacing: -0.03em;
+  }
+  .contact-field {
+    display: block;
+    margin-top: 16px;
+  }
+  .contact-field span {
+    font:
+      13px/1.2 Mono,
+      monospace;
+    text-transform: uppercase;
+    display: block;
+  }
+  .contact-field input {
+    margin-top: 10px;
+  }
+  input:not([type="checkbox"]),
+  select,
+  textarea {
+    display: block;
+    width: 100%;
+    background: #eeeeec;
+    border: 1px solid #e5e5e3;
+    border-radius: 6px;
+    padding: 12px;
+    font:
+      14px/1.3 Geist,
+      sans-serif;
+    height: 44px;
+    color: var(--ink);
+  }
+  textarea,
+  .block input,
+  .block select {
+    margin-top: 12px;
+  }
+  textarea {
+    height: 100px;
+    resize: vertical;
+  }
+  ::placeholder {
+    color: #999;
+  }
+  .hint {
+    font:
+      14px/1.3 Geist,
+      sans-serif;
+    color: var(--muted);
+    margin: 4px 0 12px;
+  }
+  .check {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    font:
+      14px/1.25 Geist,
+      sans-serif;
+    min-height: 30px;
+  }
+  .check input {
+    margin: 0;
+    width: 16px;
+    height: 16px;
+  }
+  .cta {
+    justify-self: start;
+    cursor: pointer;
+    border: 0;
+  }
+  .status:empty {
+    display: none;
+  }
+  .status {
+    font:
+      14px Geist,
+      sans-serif;
+  }
+  @media (max-width: 739px) {
+    .enquiry {
+      display: block;
+      padding: 120px 16px 64px;
+    }
+    .intro {
+      position: static;
+      max-width: none;
+      margin-bottom: 40px;
+    }
+    .intro h1 {
+      font-size: 38px;
+    }
+    .intro p {
+      font-size: 14px;
+      margin-top: 8px;
+    }
+    .contact-field span {
+      font-size: 11px;
+    }
+    .check {
+      min-height: 42px;
+    }
+    .check input {
+      width: 24px;
+      height: 24px;
+    }
+    .hint {
+      font-size: 12px;
+    }
+  }
+  @media (min-width: 740px) and (max-width: 1439px) {
+    .enquiry {
+      padding: 120px 24px 64px;
+    }
+    .intro h1 {
+      font-size: 45px;
+    }
+    .intro p {
+      font-size: 16px;
+    }
+  }
+  .contact-field input {
+    margin-top: 12px;
+  }
+  .check input {
+    accent-color: var(--blue);
+  }
+</style>

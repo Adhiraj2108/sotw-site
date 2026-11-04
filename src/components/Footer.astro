@@ -1,0 +1,113 @@
+---
+import data from "../data/studio.json";
+---
+
+<footer class:list={[{ contact: Astro.props.contact }]}>
+  <div>
+    <img src={data.mark} alt="" width="43" height="40" />
+    <h3>
+      <a href="mailto:hello@offthewall.studio">hello@offthewall.studio</a>
+    </h3>
+    <p>
+      Studio Off The Wall is a venture by Adhiraj and Swarnima, dedicated to
+      transforming the digital space with people who value quality.
+    </p>
+    <p class="social">
+      <a href="https://x.com/adhiraj_OTW">Twitter ↗</a>{" "}
+      <a href="https://www.behance.net/offthewall_studio">Behance ↗</a>
+    </p>
+    <p>Choose quality over everything.</p>
+    {!Astro.props.contact && (
+      <a class="cta" href="/contact">
+        Get in Touch
+      </a>
+    )}
+    <p class="copyright">
+      © {new Date().getFullYear()}. Made with love and money by Studio Off The
+      Wall.
+    </p>
+  </div>
+  <picture>
+    <source media="(max-width:739px)" srcset="/media/wordmark-phone.svg" />
+    <source media="(max-width:1099px)" srcset="/media/wordmark-tablet.svg" />
+    <img src="/media/wordmark-desktop.svg" alt="Studio Off The Wall" />
+  </picture>
+</footer>
+<style>
+  footer {
+    background: var(--paper);
+    min-height: 100svh;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: 80px 16px;
+  }
+  footer div {
+    max-width: 520px;
+  }
+  h3 {
+    margin: 16px 0 20px;
+  }
+  h3 a {
+    text-decoration: none;
+  }
+  p {
+    font-size: 18px;
+    margin-bottom: 42px;
+  }
+  .copyright {
+    font-size: 14px;
+    margin: 70px 0 0;
+  }
+  footer {
+    position: relative;
+    overflow: hidden;
+  }
+  footer div {
+    margin-top: -80px;
+  }
+  .social {
+    display: flex;
+    justify-content: space-between;
+    margin: 28px 24px;
+    font-size: 14px;
+  }
+  .social a {
+    text-decoration: none;
+    border-bottom: 4px dotted var(--ink);
+    padding-bottom: 6px;
+  }
+  picture {
+    position: absolute;
+    top: 89%;
+    width: calc(100% - 96px);
+    pointer-events: none;
+  }
+  picture img {
+    width: 100%;
+    display: block;
+  }
+  h3 a {
+    text-decoration: underline;
+  }
+  @media (max-width: 739px) {
+    picture {
+      width: calc(100% - 32px);
+    }
+    footer div {
+      max-width: 350px;
+    }
+    footer p {
+      font-size: 15px;
+    }
+    footer h3 {
+      font-size: 32px;
+    }
+  }
+  .contact {
+    background: white;
+  }
+  .copyright {
+    color: var(--muted);
+  }
+</style>

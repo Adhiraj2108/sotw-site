@@ -1,0 +1,123 @@
+---
+import data from "../data/studio.json";
+const scale = [
+  51, 33, 36, 75, 51, 51, 48, 68, 51, 29, 51, 51, 120, 32, 31, 51, 55, 88,
+];
+---
+
+<section>
+  <h2>Exploring Dimensions &amp; Endless Possibilities of Design</h2>
+  <p>Design is vast so is our approach.</p>
+  <div class="wall">
+    {data.gallery.map((item, i) => (
+      <div class="cell" style={"--size:" + scale[i] + "%"}>
+        {item.type === "video" ? (
+          <video src={item.src} muted playsinline loop preload="none" />
+        ) : item.type === "animation" ? (
+          <div class="animation" data-source={item.src}></div>
+        ) : (
+          <img src={item.src} alt="" loading="lazy" />
+        )}
+      </div>
+    ))}
+  </div>
+</section>
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      const el = entry.target;
+      if (el instanceof HTMLVideoElement) {
+        if (entry.isIntersecting) el.play().catch(() => {});
+        else el.pause();
+      } else if (entry.isIntersecting && el instanceof HTMLElement) {
+        observer.unobserve(el);
+        import("lottie-web/build/player/lottie_light").then(
+          ({ default: player }) =>
+            player.loadAnimation({
+              container: el,
+              renderer: "svg",
+              loop: true,
+              autoplay: !matchMedia("(prefers-reduced-motion: reduce)").matches,
+              path: el.dataset.source,
+            }),
+        );
+      }
+    }
+  });
+  document
+    .querySelectorAll(".wall video,.wall .animation")
+    .forEach((el) => observer.observe(el));
+</script>
+<style>
+  section {
+    padding: 112px 24px;
+    text-align: center;
+  }
+  h2 {
+    max-width: 470px;
+    margin: auto;
+  }
+  p {
+    margin: 8px 0 48px;
+  }
+  .wall {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 16px 32px;
+    padding: 0 24px;
+  }
+  .cell {
+    position:relative;
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    min-width: 0;
+  }
+  .cell > * {
+    position:absolute;
+    width: var(--size);
+    max-height: 120%;
+    object-fit: contain;
+  }
+  .animation {
+    aspect-ratio: 1;
+  }
+  .cell img {
+    transition: transform 0.25s;
+  }
+  .cell img:hover {
+    transform: scale(1.08);
+  }
+  @media (min-width: 740px) and (max-width: 1439px) {
+    section {
+      padding-block: 96px;
+    }
+    .wall {
+      column-gap: 16px;
+      padding: 0;
+    }
+  }
+  @media (min-width: 740px) and (max-width: 1099px) {
+    section {
+      padding-block: 64px;
+    }
+  }
+  @media (max-width: 739px) {
+    section {
+      padding: 64px 16px;
+    }
+    .wall {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-rows: repeat(6, 1fr);
+      grid-auto-flow: column;
+      gap: 16px 24px;
+      padding: 0;
+    }
+    .cell > * {
+      width: min(calc(var(--size) * 1.4), 120%);
+    }
+    p {
+      margin-bottom: 40px;
+    }
+  }
+</style>

@@ -1,0 +1,2 @@
+## Visual language
+Use the palette and font roles in src/styles/base.css. Lastik is the display face, Times New Roman Cyr is editorial text, SF Mono is metadata, and Geist is project description and form UI. Use the actual 740, 1100, 1440 and 1920 layout thresholds. The paper surface is #f8f8f6. Use subtle rounded media corners, generous white space and compact metadata. Consult MIGRATION.md before changing page structure.

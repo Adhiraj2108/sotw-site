@@ -1,0 +1,66 @@
+{
+  "title": "Studio Off The Wall",
+  "canonical": "https://offthewall.studio/",
+  "meta": [
+    {
+      "name": "description",
+      "content": "Helping entrepreneurs & businesses on how their brand and website should work, look and feel."
+    },
+    {
+      "property": "og:type",
+      "content": "website"
+    },
+    {
+      "property": "og:title",
+      "content": "Studio Off The Wall"
+    },
+    {
+      "property": "og:description",
+      "content": "Helping entrepreneurs & businesses on how their brand and website should work, look and feel."
+    },
+    {
+      "property": "og:image",
+      "content": "https://framerusercontent.com/images/cegqYotXWXDf1iuCVN1x1MlqqcM.png"
+    },
+    {
+      "name": "twitter:card",
+      "content": "summary_large_image"
+    },
+    {
+      "name": "twitter:title",
+      "content": "Studio Off The Wall"
+    },
+    {
+      "name": "twitter:description",
+      "content": "Helping entrepreneurs & businesses on how their brand and website should work, look and feel."
+    },
+    {
+      "name": "twitter:image",
+      "content": "https://framerusercontent.com/images/cegqYotXWXDf1iuCVN1x1MlqqcM.png"
+    },
+    {
+      "property": "og:url",
+      "content": "https://offthewall.studio/"
+    },
+    {
+      "name": "robots",
+      "content": "max-image-preview:large"
+    }
+  ],
+  "icons": [
+    {
+      "href": "https://framerusercontent.com/images/ocDut7YXkkFzFCUDmZiJ0uunN8.png",
+      "rel": "icon",
+      "media": "(prefers-color-scheme: light)"
+    },
+    {
+      "href": "https://framerusercontent.com/images/ocDut7YXkkFzFCUDmZiJ0uunN8.png",
+      "rel": "icon",
+      "media": "(prefers-color-scheme: dark)"
+    },
+    {
+      "rel": "apple-touch-icon",
+      "href": "https://framerusercontent.com/images/GqBPKzKO0FUTmyQlIiWxW0QO4AM.png"
+    }
+  ]
+}

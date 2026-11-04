@@ -1,0 +1,173 @@
+{
+  "hero": [
+    {
+      "src": "/media/hero-1.webp",
+      "alt": "hyphen tracks homers project snapshot"
+    },
+    {
+      "src": "/media/hero-2.webp",
+      "alt": "m'braun residence project snapshot"
+    },
+    {
+      "src": "/media/hero-3.webp",
+      "alt": "homers project snapshot 1"
+    },
+    {
+      "src": "/media/hero-4.webp",
+      "alt": "homers project snapshot 2"
+    },
+    {
+      "src": "/media/hero-5.png",
+      "alt": "simple things project snapshot"
+    }
+  ],
+  "mark": "/media/studio-mark.png",
+  "about": [
+    "An independent design studio based in New Delhi, India.",
+    "We help entrepreneurs & businesses on how their brand, and website should work, look and feel.",
+    "With over 4 years of experience designing with multiple agencies, we’re now stepping forward to partner directly with those driven to make the world better.",
+    "If it sounds like you, we would love to speak."
+  ],
+  "quotes": [
+    "Studio Off The Wall was very professional, and communicated clearly and quickly throughout our project.",
+    "They were also very skilled - one of the few designers that do mood-boarding and wireframe reviews, which I've only seen designers from top US tech companies do. I would 100% work with again!",
+    "I really enjoyed working with Swarnima on this project and think my overall vision was translated well into the final project. Swarnima was easy to work with and listened to my ideas and feedback throughout.",
+    "I am very happy with my final branding and look forward to developing my website with Off the Wall! I would recommend Off the Wall to anyone who is looking for high quality branding and web development at an approachable investment level."
+  ],
+  "projects": [
+    {
+      "url": "https://www.eleos.la/",
+      "name": "Eleos",
+      "desc": "Los Angeles based real-easte developers building affordable housing with market speed and discipline.",
+      "image": {
+        "src": "/media/project-1.png",
+        "alt": "Eleos cover image"
+      },
+      "video": "https://vz-8d8c20d7-e73.b-cdn.net/f0257d10-550e-48fe-a1b9-d9b23142a9f9/playlist.m3u8"
+    },
+    {
+      "url": "https://www.whatmattersagency.com/",
+      "name": "What Matters Agency",
+      "desc": "Portfolio website for a leading Australian media house ideating, creating, and distributing content for Australia’s biggest hospitality groups.",
+      "image": {
+        "src": "/media/project-2.png",
+        "alt": "What Matters Agency cover image"
+      },
+      "video": "https://vz-8d8c20d7-e73.b-cdn.net/5cc45676-e750-4973-871a-85342179a958/playlist.m3u8"
+    },
+    {
+      "url": "https://www.arielchilds.com/",
+      "name": "Ariel Childs Coaching",
+      "desc": "A transformative coaching experience designed to empower individuals to step into their fullest potential.",
+      "image": {
+        "src": "/media/project-3.png",
+        "alt": "Simple things cover image"
+      },
+      "video": "https://vz-8d8c20d7-e73.b-cdn.net/8308cb5d-767d-48b8-b38d-7be39408886f/playlist.m3u8"
+    },
+    {
+      "url": "https://www.buysimplethings.org/",
+      "name": "Simple-things",
+      "desc": "An exceptional brand of curated essential products designed to elevate the daily routine.",
+      "image": {
+        "src": "/media/project-4.png",
+        "alt": "Simple things cover image"
+      },
+      "video": "https://vz-8d8c20d7-e73.b-cdn.net/b375cb58-32d8-49a0-b3b5-621b63ed72fd/playlist.m3u8"
+    },
+    {
+      "url": "http://mbraunresidence.framer.website/",
+      "name": "M'Braun Residence",
+      "desc": "New York based luxurious summer retreat.",
+      "image": {
+        "src": "/media/project-5.png",
+        "alt": "M'braun residence cover image"
+      },
+      "video": "https://vz-8d8c20d7-e73.b-cdn.net/2fdda053-ac74-488a-a2ce-79b89d301820/playlist.m3u8"
+    },
+    {
+      "url": "http://hugo-estates.framer.website/",
+      "name": "Hugo Estates",
+      "desc": "Curated homes where unparalleled luxury meets exceptional living. ",
+      "image": {
+        "src": "/media/project-6.png",
+        "alt": "Hugo Estates cover image"
+      },
+      "video": "https://vz-8d8c20d7-e73.b-cdn.net/77387aae-7c40-4193-8d4c-4309ef3d69c9/playlist.m3u8"
+    }
+  ],
+  "gallery": [
+    {
+      "type": "img",
+      "src": "/media/exploration-1.png"
+    },
+    {
+      "type": "video",
+      "src": "/media/exploration-2.mp4"
+    },
+    {
+      "type": "img",
+      "src": "/media/exploration-3.png"
+    },
+    {
+      "type": "video",
+      "src": "/media/exploration-4.mp4"
+    },
+    {
+      "type": "img",
+      "src": "/media/exploration-5.png"
+    },
+    {
+      "type": "animation",
+      "src": "/media/exploration-6.json"
+    },
+    {
+      "type": "img",
+      "src": "/media/exploration-7.png"
+    },
+    {
+      "type": "img",
+      "src": "/media/exploration-8.webp"
+    },
+    {
+      "type": "animation",
+      "src": "/media/exploration-9.json"
+    },
+    {
+      "type": "img",
+      "src": "/media/exploration-10.png"
+    },
+    {
+      "type": "animation",
+      "src": "/media/exploration-11.json"
+    },
+    {
+      "type": "img",
+      "src": "/media/exploration-12.png"
+    },
+    {
+      "type": "animation",
+      "src": "/media/exploration-13.json"
+    },
+    {
+      "type": "video",
+      "src": "/media/exploration-14.mp4"
+    },
+    {
+      "type": "img",
+      "src": "/media/exploration-15.png"
+    },
+    {
+      "type": "animation",
+      "src": "/media/exploration-16.json"
+    },
+    {
+      "type": "video",
+      "src": "/media/exploration-17.mp4"
+    },
+    {
+      "type": "animation",
+      "src": "/media/exploration-18.json"
+    }
+  ]
+}
