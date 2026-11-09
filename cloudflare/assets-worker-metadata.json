@@ -1,0 +1,6 @@
+{
+  "main_module": "worker.js",
+  "compatibility_date": "2026-11-09",
+  "bindings": [{ "type": "r2_bucket", "name": "ASSETS", "bucket_name": "sotw-assets" }],
+  "observability": { "enabled": true, "traces": { "enabled": true, "head_sampling_rate": 0.01 } }
+}

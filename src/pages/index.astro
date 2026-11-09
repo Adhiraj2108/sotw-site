@@ -44,7 +44,7 @@ const reviews = [
       <section class="review">
         <img
           class="tag"
-          src={"/media/testimonial-" + (i + 1) + ".svg"}
+          src={"https://sotw-assets.rae-social-agency.workers.dev/media/testimonial-" + (i + 1) + ".svg"}
           alt=""
         />
         <small>
@@ -58,7 +58,7 @@ const reviews = [
           ))}
         </div>
         <h3>{name}</h3>
-        <small>
+        <small class="review-role">
           {business}
           <br />({role})
         </small>
@@ -78,7 +78,7 @@ const reviews = [
           ].map((s, i) => (
             <li>
               {s}
-              <img src={"/media/service-" + (i + 1) + ".svg"} alt="" />
+              <img src={"https://sotw-assets.rae-social-agency.workers.dev/media/service-" + (i + 1) + ".svg"} alt="" />
             </li>
           ))}
         </ul>
@@ -88,6 +88,34 @@ const reviews = [
   </main>
   <Footer />
 </Page>
+<script>
+  const reviews = [...document.querySelectorAll<HTMLElement>(".review")];
+  let frame = 0;
+  function updateTags() {
+    frame = 0;
+    const pin = innerWidth < 740 ? 132 : 160;
+    const viewportHeight = innerHeight;
+    reviews.forEach((review) => {
+      const tag = review.querySelector<HTMLElement>(".tag")!;
+      const role = review.querySelector<HTMLElement>(".review-role")!;
+      // Measure both triggers against the tag's fixed viewport position.
+      // Start 2vh before this section; finish 2vh after its role label.
+      const start = review.getBoundingClientRect().top - viewportHeight * 0.02;
+      const end = role.getBoundingClientRect().bottom + viewportHeight * 0.02;
+      const visible = start <= pin && end > pin;
+      tag.classList.toggle("is-visible", visible);
+    });
+  }
+  function scheduleTags() {
+    if (!frame) frame = requestAnimationFrame(updateTags);
+  }
+  addEventListener("scroll", scheduleTags, { passive: true });
+  addEventListener("resize", scheduleTags);
+  addEventListener("pageshow", scheduleTags);
+  // Layout can shift as fonts and deferred media finish loading.
+  new ResizeObserver(scheduleTags).observe(document.body);
+  updateTags();
+</script>
 <style>
   .about,
   .review,
@@ -108,6 +136,7 @@ const reviews = [
   }
   .copy p + p {
     margin-top: 20px;
+    text-align: center;
   }
   .about .cta {
     margin-top: 8px;
@@ -222,12 +251,24 @@ const reviews = [
     position: relative;
   }
   .review > .tag {
-    position: absolute;
-    top: calc(50% - 125px);
+    position: fixed;
+    top: 160px;
     left: 50%;
     height: 27px;
     transform: translateX(-50%);
     pointer-events: none;
+    z-index: 5;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 100ms ease, visibility 0s linear 100ms;
+  }
+  .review > .tag.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .review > .tag { transition: none; }
   }
   .review small:first-of-type {
     color: var(--muted);

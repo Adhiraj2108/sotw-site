@@ -2,20 +2,13 @@
 import Page from "../layouts/Page.astro";
 import Footer from "../components/Footer.astro";
 import StudioInfo from "../components/StudioInfo.astro";
+import { services, budgets, limits } from "../lib/enquiry.js";
+const endpoint = import.meta.env.PUBLIC_ENQUIRY_ENDPOINT || "https://sotw-enquiries.rae-social-agency.workers.dev/submit";
 const fields = [
-  ["Full Name*", "Name", "Jane Smith", "text"],
-  ["Company Name*", "Company", "Acme Corporation", "text"],
-  ["Email*", "Email", "jane@acme.com", "email"],
-  ["Website (if you got one)", "Website URL", "www.acme.com", "url"],
-];
-const services = [
-  "Positioning & Messaging",
-  "Visual Identity",
-  "Logo",
-  "Web Design",
-  "Web Development",
-  "Other",
-  "Not sure yet",
+  ["Full Name*", "Name", "Jane Smith", "text", "name"],
+  ["Company Name*", "Company", "Acme Corporation", "text", "company"],
+  ["Email*", "Email", "jane@acme.com", "email", "email"],
+  ["Website (if you got one)", "Website URL", "www.acme.com", "text", "website"],
 ];
 ---
 
@@ -31,16 +24,16 @@ const services = [
         </p>
       </div>
       <form
-        action="mailto:hello@offthewall.studio"
+        action={endpoint}
         method="post"
-        enctype="text/plain"
       >
         <fieldset>
           <legend>Contact details</legend>
-          {fields.map(([label, name, placeholder, type]) => (
+          {fields.map(([label, name, placeholder, type, key]) => (
             <label class="contact-field">
               <span>{label}</span>
-              <input {name} {type} {placeholder} required={type !== "url"} />
+              <input {name} {type} {placeholder} data-field={key} maxlength={limits[key]} required={key !== "website"} aria-describedby={key + "-error"} />
+              <span class="field-error" id={key + "-error"} data-error-for={key}></span>
             </label>
           ))}
         </fieldset>
@@ -48,55 +41,67 @@ const services = [
           Project information*
           <textarea
             name="Project info"
+            data-field="projectInfo"
+            maxlength={limits.projectInfo}
+            aria-describedby="projectInfo-error"
             required
             placeholder="What does your company do? How long have you been in business? What are your goals for this collaboration?"
           ></textarea>
+          <span class="field-error" id="projectInfo-error" data-error-for="projectInfo"></span>
         </label>
         <fieldset>
           <legend>What services are you looking for?*</legend>
           <p class="hint">Select all services you want to work on.</p>
           {services.map((s, i) => (
             <label class="check">
-              <input name={s} type="checkbox" />
+              <input name="services" value={s} type="checkbox" aria-describedby="services-error" />
               {i === 0 ? "Brand " + s : s}
             </label>
           ))}
+          <p class="field-error" id="services-error" data-error-for="services"></p>
         </fieldset>
         <label class="block">
           How did you hear about us?
           <input
             name="Recc"
+            data-field="referral"
+            maxlength={limits.referral}
+            aria-describedby="referral-error"
             placeholder="Was it Twitter? Or a friend recommended us?"
           />
+          <span class="field-error" id="referral-error" data-error-for="referral"></span>
         </label>
         <label class="block">
           Estimated budget*
-          <select name="Budget" required>
-            <option value="" disabled>
+          <select name="Budget" data-field="budget" aria-describedby="budget-error" required>
+            <option value="" disabled selected>
               Select
             </option>
-            {[
-              "Under $3,000",
-              "$3,000 - $6,000",
-              "$6,000 - $10,000",
-              "$10,000+",
-            ].map((b) => (
-              <option selected={b === "Under $3,000"}>{b}</option>
-            ))}
+            {budgets.map((b) => <option>{b}</option>)}
           </select>
+          <span class="field-error" id="budget-error" data-error-for="budget"></span>
         </label>
         <label class="block">
           When do you wish to launch?*
           <input
             name="Launch date"
+            data-field="launchDate"
+            maxlength={limits.launchDate}
+            aria-describedby="launchDate-error"
             required
             placeholder="Share the launch date or timeline"
           />
+          <span class="field-error" id="launchDate-error" data-error-for="launchDate"></span>
+        </label>
+        <label class="honeypot" aria-hidden="true">
+          Leave this field empty
+          <input name="companyWebsite" tabindex="-1" autocomplete="off" />
         </label>
         <button class="cta" type="submit">
           Send Enquiry
         </button>
-        <p class="status" role="status"></p>
+        <p class="status" role="status" tabindex="-1"></p>
+        <noscript>Please email <a href="mailto:hello@offthewall.studio">hello@offthewall.studio</a> to send your enquiry.</noscript>
       </form>
     </section>
     <StudioInfo />
@@ -104,22 +109,82 @@ const services = [
   <Footer contact />
 </Page>
 <script>
-  const form = document.querySelector("form")!;
-  form.addEventListener("submit", (event) => {
+  import { validateEnquiry } from "../lib/enquiry.js";
+  const form = document.querySelector<HTMLFormElement>(".enquiry form")!;
+  const button = form.querySelector<HTMLButtonElement>("button[type=submit]")!;
+  const status = form.querySelector<HTMLElement>("[role=status]")!;
+  const checkboxes = [...form.querySelectorAll<HTMLInputElement>('input[name="services"]')];
+  let submissionId = crypto.randomUUID();
+  let submitting = false;
+  function validateServices() {
+    checkboxes[0].setCustomValidity(checkboxes.some(c => c.checked) ? "" : "Please select at least one service.");
+  }
+  validateServices();
+  checkboxes.forEach(c => c.addEventListener("change", validateServices));
+  function showErrors(errors: Record<string, string>) {
+    form.querySelectorAll<HTMLElement>("[data-error-for]").forEach(el => {
+      el.textContent = errors[el.dataset.errorFor!] || "";
+    });
+    form.querySelectorAll<HTMLElement>("[data-field]").forEach(el => {
+      el.setAttribute("aria-invalid", String(Boolean(errors[el.dataset.field!])));
+    });
+    checkboxes.forEach(c => c.setAttribute("aria-invalid", String(Boolean(errors.services))));
+    const first = Object.keys(errors)[0];
+    if (first) (first === "services" ? checkboxes[0] : form.querySelector<HTMLElement>(`[data-field="${first}"]`))?.focus();
+  }
+  form.addEventListener("input", event => {
+    const target = event.target as HTMLElement;
+    if (target.dataset.field) {
+      target.removeAttribute("aria-invalid");
+      const error = form.querySelector<HTMLElement>(`[data-error-for="${target.dataset.field}"]`);
+      if (error) error.textContent = "";
+    }
+  });
+  form.addEventListener("submit", async event => {
     event.preventDefault();
+    if (submitting) return;
     const fields = new FormData(form);
-    const body = Array.from(
-      fields,
-      ([key, value]) => key + ": " + (value === "on" ? "Yes" : value),
-    ).join("\n");
-    const subject = "Project enquiry from " + fields.get("Name");
-    window.location.href =
-      "mailto:hello@offthewall.studio?subject=" +
-      encodeURIComponent(subject) +
-      "&body=" +
-      encodeURIComponent(body);
-    form.querySelector("[role=status]")!.textContent =
-      "Send your draft from your email app to complete your enquiry.";
+    const payload = {
+      name: fields.get("Name"), company: fields.get("Company"), email: fields.get("Email"),
+      website: fields.get("Website URL"), projectInfo: fields.get("Project info"),
+      services: fields.getAll("services"), referral: fields.get("Recc"),
+      budget: fields.get("Budget"), launchDate: fields.get("Launch date"),
+      companyWebsite: fields.get("companyWebsite"), submissionId,
+    };
+    const result = validateEnquiry(payload);
+    showErrors(result.errors);
+    if (!result.valid) { status.textContent = "Please check the highlighted fields."; return; }
+    submitting = true;
+    button.disabled = true;
+    button.textContent = "Sending…";
+    form.setAttribute("aria-busy", "true");
+    status.textContent = "Sending your enquiry…";
+    try {
+      const response = await fetch(form.action, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...payload, ...result.data }),
+        signal: AbortSignal.timeout(20000),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        if (data.errors) showErrors(data.errors);
+        throw new Error(data.error || "We could not save your enquiry. Please try again.");
+      }
+      if (!data.ok) throw new Error("We could not confirm your enquiry. Please try again.");
+      form.reset();
+      validateServices();
+      submissionId = crypto.randomUUID();
+      status.textContent = "Thank you! Your enquiry has been received. We’ll be in touch soon.";
+      status.focus();
+    } catch (error) {
+      status.textContent = error instanceof Error && error.name !== "TimeoutError" && error.name !== "TypeError"
+        ? error.message : "We couldn’t confirm your enquiry. Please try again, or email hello@offthewall.studio.";
+    } finally {
+      submitting = false;
+      button.disabled = false;
+      button.textContent = "Send Enquiry";
+      form.removeAttribute("aria-busy");
+    }
   });
 </script>
 <style>
@@ -231,6 +296,25 @@ const services = [
     cursor: pointer;
     border: 0;
   }
+  .honeypot {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .field-error,
+  .contact-field .field-error {
+    display: block;
+    margin-top: 6px;
+    color: var(--blue);
+    font: 13px/1.4 Geist, sans-serif;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+  .field-error:empty { display: none; }
+  [aria-invalid="true"] { border-color: var(--blue); }
+  .cta:disabled { opacity: .65; cursor: wait; }
   .status:empty {
     display: none;
   }

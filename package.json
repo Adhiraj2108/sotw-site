@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "deploy": "node scripts/deploy-site.mjs",
+    "test": "node --test tests/*.test.js"
   },
   "dependencies": {
     "astro": "^7.4.5",

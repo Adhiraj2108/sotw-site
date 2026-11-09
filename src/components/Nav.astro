@@ -1,9 +1,9 @@
 <header id="studio-navigation">
   <nav aria-label="Studio">
-    <a class="brand" href="/">
+    <div class="brand">
       <small>00 Studio</small>
-      <span>Studio Off the Wall</span>
-    </a>
+      <a href="/">Studio Off the Wall</a>
+    </div>
     <div class="wide">
       <small>Designers</small>Adhiraj
       <br />
@@ -48,17 +48,16 @@
     color: var(--muted);
     margin-bottom: 3px;
   }
-  .brand {
+  .brand a {
+    display: inline-block;
+    margin-left: 22px;
     text-decoration: none;
-  }
-  .brand span {
-    padding-left: 22px;
   }
   .right {
     text-align: right;
   }
   .right a:hover,
-  .brand:hover {
+  .brand a:hover {
     text-decoration: underline;
   }
   @media (max-width: 739px) {
@@ -70,8 +69,8 @@
     .wide {
       display: none;
     }
-    .brand span {
-      padding-left: 19px;
+    .brand a {
+      margin-left: 19px;
     }
   }
   .wide {

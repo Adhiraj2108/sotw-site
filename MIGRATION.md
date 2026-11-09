@@ -27,7 +27,7 @@ The five hero images, six project covers, gallery artwork, four gallery videos, 
 
 ## Contact delivery
 
-The form opens an email draft addressed to hello@offthewall.studio, as selected during the migration. The subject includes the visitor’s name and the body includes their entered details and selected services. The visitor finishes sending in their mail application. The email link remains available as a second contact path.
+The form submits JSON to the separate `sotw-enquiries` Cloudflare Worker. Browser and server validation share `src/lib/enquiry.js`. Valid enquiries are stored as private JSON records in the `sotw-enquiries` R2 bucket; the visitor receives confirmation only after storage succeeds. Notification messages are addressed to hello@offthewall.studio with the visitor as Reply-To. Notification delivery requires a configured verified sender; at implementation time this remains pending. Unsent notifications stay in the record for a scheduled retry every five minutes once email is configured. See `cloudflare/ENQUIRIES.md` for status and setup. The email link remains available as a second contact path.
 
 ## Verification
 
@@ -52,4 +52,12 @@ Production browser checks exercised hero dragging, playback of all six project s
 
 ## Remaining differences
 
-The mobile studio information bar keeps its location and social links on screen. The reference can offset that row beyond the left edge. Some text wrapping, vertical spacing, animation timing and drag physics differ. The largest measured page-height difference was 86 pixels on the 1100-pixel homepage. Email delivery depends on the visitor’s mail application. Framer hosting, editor-only components and analytics integrations are outside the local static build.
+The mobile studio information bar keeps its location and social links on screen. The reference can offset that row beyond the left edge. Some text wrapping, vertical spacing, animation timing and drag physics differ. The largest measured page-height difference was 86 pixels on the 1100-pixel homepage. Email notifications require verified sender setup as described in the Contact delivery section. Framer hosting, editor-only components and analytics integrations are outside the local static build.
+
+## Cloudflare media hosting — 9 November 2026
+
+All media references now use `https://sotw-assets.rae-social-agency.workers.dev`, backed by the `sotw-assets` R2 bucket. This includes the 41 local media files, four font files, three SEO/icon images and all playlists and segments for six project video streams (243 files total). HLS resolutions and relative segment paths are preserved. The source mappings and object checksums are recorded in `cloudflare/asset-manifest.json`; deployment details are in `cloudflare/README.md`. This supersedes the external font, SEO image and Bunny playback locations described above. The Astro site deployment is unchanged by this media migration.
+
+## Custom domain cutover — 10 November 2026
+
+The current Astro build is deployed to Cloudflare Worker `sotw-website` and serves `offthewall.studio`. `www.offthewall.studio` redirects permanently to the apex hostname. Existing Google Workspace email DNS records were preserved. The public contact form now uses the deployed submission backend; notification email sender configuration remains pending.

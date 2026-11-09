@@ -20,7 +20,7 @@
     },
     {
       "property": "og:image",
-      "content": "https://framerusercontent.com/images/cegqYotXWXDf1iuCVN1x1MlqqcM.png"
+      "content": "https://sotw-assets.rae-social-agency.workers.dev/media/cegqYotXWXDf1iuCVN1x1MlqqcM.png"
     },
     {
       "name": "twitter:card",
@@ -36,7 +36,7 @@
     },
     {
       "name": "twitter:image",
-      "content": "https://framerusercontent.com/images/cegqYotXWXDf1iuCVN1x1MlqqcM.png"
+      "content": "https://sotw-assets.rae-social-agency.workers.dev/media/cegqYotXWXDf1iuCVN1x1MlqqcM.png"
     },
     {
       "property": "og:url",
@@ -49,18 +49,18 @@
   ],
   "icons": [
     {
-      "href": "https://framerusercontent.com/images/ocDut7YXkkFzFCUDmZiJ0uunN8.png",
+      "href": "https://sotw-assets.rae-social-agency.workers.dev/media/ocDut7YXkkFzFCUDmZiJ0uunN8.png",
       "rel": "icon",
       "media": "(prefers-color-scheme: light)"
     },
     {
-      "href": "https://framerusercontent.com/images/ocDut7YXkkFzFCUDmZiJ0uunN8.png",
+      "href": "https://sotw-assets.rae-social-agency.workers.dev/media/ocDut7YXkkFzFCUDmZiJ0uunN8.png",
       "rel": "icon",
       "media": "(prefers-color-scheme: dark)"
     },
     {
       "rel": "apple-touch-icon",
-      "href": "https://framerusercontent.com/images/GqBPKzKO0FUTmyQlIiWxW0QO4AM.png"
+      "href": "https://sotw-assets.rae-social-agency.workers.dev/media/GqBPKzKO0FUTmyQlIiWxW0QO4AM.png"
     }
   ]
 }

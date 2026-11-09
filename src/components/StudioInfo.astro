@@ -14,11 +14,11 @@
   <div class="social">
     <small>Go to</small>
     <a href="https://x.com/adhiraj_OTW" target="_blank">
-      Twitter ↗
+      Twitter<img src="https://sotw-assets.rae-social-agency.workers.dev/media/social-arrow.svg" alt="" width="16" height="17" />
     </a>
     <br />
     <a href="https://www.behance.net/offthewall_studio" target="_blank">
-      Behance ↗
+      Behance<img src="https://sotw-assets.rae-social-agency.workers.dev/media/social-arrow.svg" alt="" width="16" height="17" />
     </a>
   </div>
 </aside>
@@ -63,7 +63,14 @@
     text-align: right;
   }
   .social a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     text-decoration: none;
+  }
+  .social a img {
+    display: block;
+    flex: none;
   }
   .social a:hover {
     text-decoration: underline;

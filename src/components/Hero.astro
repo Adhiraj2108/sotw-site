@@ -38,24 +38,50 @@ const cards = [
   <StudioInfo />
 </section>
 <script>
-  let layer = 4;
-  document.querySelectorAll<HTMLElement>(".piece").forEach((card) => {
-    let x = 0,
-      y = 0,
-      startX = 0,
-      startY = 0;
+  const cards = [...document.querySelectorAll<HTMLElement>(".piece")];
+  const order = [...cards];
+  function raise(card: HTMLElement) {
+    order.splice(order.indexOf(card), 1);
+    order.push(card);
+    order.forEach((item, index) => item.style.zIndex = String(index + 3));
+  }
+  cards.forEach((card) => {
+    let x = 0, y = 0, startX = 0, startY = 0;
+    let pointer: number | null = null;
+    card.addEventListener("pointerenter", (event) => {
+      if (event.pointerType === "mouse") raise(card);
+    });
     card.addEventListener("pointerdown", (event) => {
-      card.setPointerCapture(event.pointerId);
+      if (!event.isPrimary || event.button !== 0 || pointer !== null) return;
+      pointer = event.pointerId;
+      card.setPointerCapture(pointer);
       startX = event.clientX - x;
       startY = event.clientY - y;
-      card.style.zIndex = String(++layer);
+      card.classList.remove("dropped");
+      card.classList.add("dragging");
+      raise(card);
     });
     card.addEventListener("pointermove", (event) => {
-      if (!card.hasPointerCapture(event.pointerId)) return;
-      x = event.clientX - startX;
-      y = event.clientY - startY;
-      card.style.translate = x + "px " + y + "px";
+      if (pointer !== event.pointerId) return;
+      const hero = card.parentElement!;
+      // Keep enough of the print visible to pick it up again after a drop.
+      x = Math.max(48 - card.offsetLeft - card.offsetWidth,
+        Math.min(hero.clientWidth - 48 - card.offsetLeft, event.clientX - startX));
+      y = Math.max(80 - card.offsetTop,
+        Math.min(hero.clientHeight - 100 - card.offsetTop - card.offsetHeight, event.clientY - startY));
+      card.style.translate = `${x}px ${y}px`;
     });
+    const release = (event: PointerEvent) => {
+      if (pointer !== event.pointerId) return;
+      pointer = null;
+      card.classList.remove("dragging");
+      card.classList.add("dropped");
+      if (card.hasPointerCapture(event.pointerId)) card.releasePointerCapture(event.pointerId);
+    };
+    card.addEventListener("pointerup", release);
+    card.addEventListener("pointercancel", release);
+    card.addEventListener("lostpointercapture", release);
+    card.addEventListener("pointerleave", () => card.classList.remove("dropped"));
   });
 </script>
 <style>
@@ -72,7 +98,15 @@ const cards = [
   .title {
     text-align: center;
     position: relative;
-    z-index: 2;
+    /* Dragged image layers are bounded at 6. */
+    z-index: 7;
+    color: var(--ink);
+    mix-blend-mode: difference;
+    pointer-events: none;
+  }
+  .title > * {
+    /* White source + difference renders black on paper and inverts images. */
+    filter: invert(1);
     pointer-events: none;
   }
   .title p {
@@ -95,10 +129,23 @@ const cards = [
     cursor: grab;
     touch-action: none;
     user-select: none;
-    animation: appear 0.8s both;
+    animation: appear 1.2s cubic-bezier(.12,.23,.14,.98) both;
+    transition: transform 400ms cubic-bezier(.12,.23,.14,.98);
   }
-  .piece:active {
+  .piece.dragging {
     cursor: grabbing;
+    transform: translateY(-8px) scale(1.025);
+  }
+  @media (hover: hover) {
+    .piece:hover:not(.dropped) {
+      transform: translateY(-8px) scale(1.025);
+    }
+    .piece:hover:not(.dropped) .print {
+      box-shadow: 0 14px 22px #0002;
+    }
+  }
+  .piece.dragging .print {
+    box-shadow: 0 14px 22px #0002;
   }
   .pictures {
     display: flex;
@@ -110,6 +157,9 @@ const cards = [
     position: relative;
     min-width: 0;
     flex: 1;
+    border-radius: 6px;
+    box-shadow: 0 3px 4px #0000001c;
+    transition: box-shadow 400ms cubic-bezier(.12,.23,.14,.98);
   }
   .print::after {
     content: "";
@@ -152,14 +202,17 @@ const cards = [
   .p04 {
     z-index: 1;
   }
+  .p02 {
+    animation-delay: 0.35s;
+  }
   .p03 {
-    animation-delay: 0.4s;
+    animation-delay: 0.55s;
   }
   .p01 {
-    animation-delay: 0.6s;
+    animation-delay: 0.75s;
   }
   .p04 {
-    animation-delay: 0.8s;
+    animation-delay: 0.95s;
   }
   @keyframes appear {
     from {
@@ -186,6 +239,13 @@ const cards = [
   @media (prefers-reduced-motion: reduce) {
     .piece {
       animation: none;
+      transition: none;
+    }
+    .piece .print {
+      transition: none;
+    }
+    .piece.dragging, .piece:hover:not(.dropped) {
+      transform: none;
     }
   }
   @media (min-width: 0px) {

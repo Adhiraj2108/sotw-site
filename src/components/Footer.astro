@@ -13,8 +13,14 @@ import data from "../data/studio.json";
       transforming the digital space with people who value quality.
     </p>
     <p class="social">
-      <a href="https://x.com/adhiraj_OTW">Twitter ↗</a>{" "}
-      <a href="https://www.behance.net/offthewall_studio">Behance ↗</a>
+      <a href="https://x.com/adhiraj_OTW">
+        <span class="social-label">Twitter<img src="https://sotw-assets.rae-social-agency.workers.dev/media/social-arrow.svg" alt="" width="16" height="17" /></span>
+        <span class="social-dots" aria-hidden="true"><span></span></span>
+      </a>
+      <a href="https://www.behance.net/offthewall_studio">
+        <span class="social-label">Behance<img src="https://sotw-assets.rae-social-agency.workers.dev/media/social-arrow.svg" alt="" width="16" height="17" /></span>
+        <span class="social-dots" aria-hidden="true"><span></span><span></span></span>
+      </a>
     </p>
     <p>Choose quality over everything.</p>
     {!Astro.props.contact && (
@@ -28,9 +34,9 @@ import data from "../data/studio.json";
     </p>
   </div>
   <picture>
-    <source media="(max-width:739px)" srcset="/media/wordmark-phone.svg" />
-    <source media="(max-width:1099px)" srcset="/media/wordmark-tablet.svg" />
-    <img src="/media/wordmark-desktop.svg" alt="Studio Off The Wall" />
+    <source media="(max-width:739px)" srcset="https://sotw-assets.rae-social-agency.workers.dev/media/wordmark-phone.svg" />
+    <source media="(max-width:1099px)" srcset="https://sotw-assets.rae-social-agency.workers.dev/media/wordmark-tablet.svg" />
+    <img src="https://sotw-assets.rae-social-agency.workers.dev/media/wordmark-desktop.svg" alt="Studio Off The Wall" />
   </picture>
 </footer>
 <style>
@@ -73,9 +79,35 @@ import data from "../data/studio.json";
     font-size: 14px;
   }
   .social a {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
     text-decoration: none;
-    border-bottom: 4px dotted var(--ink);
-    padding-bottom: 6px;
+    transition: opacity 200ms ease;
+  }
+  .social-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .social-label img {
+    display: block;
+    flex: none;
+  }
+  .social-dots {
+    display: flex;
+    gap: 4px;
+  }
+  .social-dots > span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .social a:hover,
+  .social a:focus-visible {
+    opacity: .6;
   }
   picture {
     position: absolute;

@@ -1,21 +1,21 @@
 @font-face {
   font-family: Lastik;
-  src: url(https://framerusercontent.com/assets/KHc0ojrqk3eDv32HTU61GXo7k.woff2);
+  src: url(https://sotw-assets.rae-social-agency.workers.dev/media/KHc0ojrqk3eDv32HTU61GXo7k.woff2);
   font-display: swap;
 }
 @font-face {
   font-family: TimesCyr;
-  src: url(https://framerusercontent.com/assets/KPHwsLPh7tKmNsN2SAJjg3U.woff2);
+  src: url(https://sotw-assets.rae-social-agency.workers.dev/media/KPHwsLPh7tKmNsN2SAJjg3U.woff2);
   font-display: swap;
 }
 @font-face {
   font-family: Mono;
-  src: url(https://framerusercontent.com/assets/OwOgBugJjGYiV7Add0KVExp5A.woff2);
+  src: url(https://sotw-assets.rae-social-agency.workers.dev/media/OwOgBugJjGYiV7Add0KVExp5A.woff2);
   font-display: swap;
 }
 @font-face {
   font-family: Geist;
-  src: url(https://framerusercontent.com/assets/nlOBJLEsY3osQdspWig8PsdNLVA.woff2);
+  src: url(https://sotw-assets.rae-social-agency.workers.dev/media/nlOBJLEsY3osQdspWig8PsdNLVA.woff2);
   font-display: swap;
 }
 :root {
@@ -114,11 +114,18 @@ p {
   text-decoration: underline;
   box-shadow: inset 0 -4px 24px 1px white;
   padding: 22px 16px;
+  transition: box-shadow 400ms cubic-bezier(.12,.23,.14,.98);
 }
-.cta:hover {
-  color: var(--blue);
-  background: white;
-  box-shadow: inset 0 0 0 1px var(--blue);
+.cta:focus-visible {
+  box-shadow: inset 0 4px 24px 1px white;
+}
+@media (hover: hover) {
+  .cta:hover {
+    box-shadow: inset 0 4px 24px 1px white;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cta { transition: none; }
 }
 @media (min-width: 740px) and (max-width: 1439px) {
   body {
