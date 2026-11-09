@@ -29,33 +29,84 @@ import data from "../data/studio.json";
 <script>
   for (const card of document.querySelectorAll<HTMLAnchorElement>(".project")) {
     const video = card.querySelector("video")!;
-    let initialized = false,
-      active = false;
+    let initialization: Promise<void> | null = null;
+    let hls: import("hls.js/light").default | null = null;
+    let active = false;
+    let frame: number | null = null;
+    let startupQuality = true;
+
+    async function initialize() {
+      const url = video.dataset.stream!;
+      if (video.canPlayType("application/vnd.apple.mpegurl")) {
+        // Native HLS doesn't expose startup-level selection. Use its 720p rendition.
+        video.src = new URL("720p/video.m3u8", url).href;
+        return;
+      }
+      const { default: Hls } = await import("hls.js/light");
+      if (!Hls.isSupported()) throw new Error("HLS playback is unavailable");
+      hls = new Hls({ autoStartLoad: false, testBandwidth: false });
+      await new Promise<void>((resolve, reject) => {
+        hls!.on(Hls.Events.MANIFEST_PARSED, () => {
+          const level = hls!.levels.findIndex(level => level.height === 720);
+          const start = level >= 0 ? level : hls!.levels.length - 1;
+          hls!.startLevel = start;
+          // Keep the first frame sharp, even before bandwidth has been measured.
+          hls!.loadLevel = start;
+          hls!.startLoad();
+          resolve();
+        });
+        hls!.on(Hls.Events.ERROR, (_event, data) => {
+          if (!data.fatal) return;
+          hls?.destroy();
+          hls = null;
+          initialization = null;
+          startupQuality = true;
+          card.classList.remove("playing");
+          reject(new Error("Unable to load preview"));
+        });
+        hls!.loadSource(url);
+        hls!.attachMedia(video);
+      });
+    }
     async function preview() {
       active = true;
-      if (!initialized) {
-        initialized = true;
-        const url = video.dataset.stream!;
-        if (video.canPlayType("application/vnd.apple.mpegurl")) video.src = url;
-        else {
-          const { default: Hls } = await import("hls.js/light");
-          if (!Hls.isSupported()) return;
-          const hls = new Hls();
-          hls.loadSource(url);
-          hls.attachMedia(video);
-        }
+      try {
+        initialization ??= initialize();
+        await initialization;
+        if (active) await video.play();
+      } catch {
+        card.classList.remove("playing");
       }
-      if (active) video.play().catch(() => {});
+    }
+    function cancelFrame() {
+      if (frame !== null) video.cancelVideoFrameCallback(frame);
+      frame = null;
+    }
+    function reveal() {
+      frame = null;
+      if (!active || video.paused || video.readyState < 2) return;
+      card.classList.add("playing");
+      if (startupQuality) {
+        startupQuality = false;
+        // After the first sharp frame, hls.js can adapt to connection speed.
+        if (hls) hls.loadLevel = -1;
+      }
     }
     function stop() {
       active = false;
+      cancelFrame();
       video.pause();
       if (video.readyState) video.currentTime = 0;
       card.classList.remove("playing");
     }
-    video.addEventListener("playing", () =>
-      card.classList.toggle("playing", active),
-    );
+    video.addEventListener("playing", () => {
+      if (!active) { video.pause(); return; }
+      cancelFrame();
+      // Keep the cover until the browser has actually rendered a video frame.
+      if ("requestVideoFrameCallback" in video) frame = video.requestVideoFrameCallback(reveal);
+      else reveal();
+    });
+    video.addEventListener("error", () => card.classList.remove("playing"));
     card.addEventListener("pointerenter", preview);
     card.addEventListener("focus", preview);
     card.addEventListener("pointerleave", stop);
