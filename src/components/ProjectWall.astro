@@ -27,6 +27,15 @@ import data from "../data/studio.json";
   </div>
 </section>
 <script>
+  const warmups = new Map<Element, () => void>();
+  const preloader = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      preloader.unobserve(entry.target);
+      warmups.get(entry.target)?.();
+    }
+  }, { rootMargin: "1200px 0px" });
+
   for (const card of document.querySelectorAll<HTMLAnchorElement>(".project")) {
     const video = card.querySelector("video")!;
     let initialization: Promise<void> | null = null;
@@ -37,14 +46,22 @@ import data from "../data/studio.json";
 
     async function initialize() {
       const url = video.dataset.stream!;
+      video.preload = "auto";
       if (video.canPlayType("application/vnd.apple.mpegurl")) {
         // Native HLS doesn't expose startup-level selection. Use its 720p rendition.
         video.src = new URL("720p/video.m3u8", url).href;
+        video.load();
         return;
       }
       const { default: Hls } = await import("hls.js/light");
       if (!Hls.isSupported()) throw new Error("HLS playback is unavailable");
-      hls = new Hls({ autoStartLoad: false, testBandwidth: false });
+      hls = new Hls({
+        autoStartLoad: false,
+        testBandwidth: false,
+        maxBufferLength: 4,
+        maxMaxBufferLength: 8,
+        maxBufferSize: 0,
+      });
       await new Promise<void>((resolve, reject) => {
         hls!.on(Hls.Events.MANIFEST_PARSED, () => {
           const level = hls!.levels.findIndex(level => level.height === 720);
@@ -54,6 +71,10 @@ import data from "../data/studio.json";
           hls!.loadLevel = start;
           hls!.startLoad();
           resolve();
+        });
+        hls!.on(Hls.Events.FRAG_BUFFERED, () => {
+          // A paused preview only needs its opening segment, not the full video.
+          if (!active) hls?.stopLoad();
         });
         hls!.on(Hls.Events.ERROR, (_event, data) => {
           if (!data.fatal) return;
@@ -68,12 +89,21 @@ import data from "../data/studio.json";
         hls!.attachMedia(video);
       });
     }
+    function warm() {
+      initialization ??= initialize();
+      return initialization;
+    }
+    warmups.set(card, () => { void warm().catch(() => {}); });
+    preloader.observe(card);
+
     async function preview() {
       active = true;
       try {
-        initialization ??= initialize();
-        await initialization;
-        if (active) await video.play();
+        await warm();
+        if (active) {
+          if (hls && !hls.loadingEnabled) hls.startLoad();
+          await video.play();
+        }
       } catch {
         card.classList.remove("playing");
       }
@@ -96,6 +126,8 @@ import data from "../data/studio.json";
       active = false;
       cancelFrame();
       video.pause();
+      // Keep buffered frames for the next hover, but pause further downloads.
+      if (video.readyState >= 2) hls?.stopLoad();
       if (video.readyState) video.currentTime = 0;
       card.classList.remove("playing");
     }
@@ -153,6 +185,7 @@ import data from "../data/studio.json";
   }
   .playing img {
     opacity: 0;
+    transition: none;
   }
   .row {
     display: flex;
