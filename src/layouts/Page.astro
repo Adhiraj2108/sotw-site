@@ -20,7 +20,16 @@ const seo = Astro.props.contact ? contact : home;
     {seo.icons.map((i) => (
       <link {...i} />
     ))}
-  </head>
+  <!-- Google Analytics -->
+<script is:inline src="https://www.googletagmanager.com/gtag/js?id=G-HBLQN93FBQ"></script>
+<script is:inline>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-HBLQN93FBQ');
+</script>
+<!-- End Google Analytics -->
+</head>
   <body>
     <Nav />
     <slot />
