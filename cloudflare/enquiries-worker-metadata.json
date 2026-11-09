@@ -5,7 +5,8 @@
     { "type": "r2_bucket", "name": "ENQUIRIES", "bucket_name": "sotw-enquiries" },
     { "type": "ratelimit", "name": "RATE_LIMITER", "namespace_id": "2026110901", "simple": { "limit": 5, "period": 60 } },
     { "type": "plain_text", "name": "ALLOWED_ORIGINS", "text": "https://offthewall.studio,https://www.offthewall.studio,http://localhost:4321,http://127.0.0.1:4321" },
-    { "type": "plain_text", "name": "MAIL_FROM", "text": "" }
+    { "type": "plain_text", "name": "MAIL_FROM", "text": "forms@notify.offthewall.studio" }
   ],
+  "keep_bindings": ["secret_text"],
   "observability": { "enabled": true, "traces": { "enabled": true, "head_sampling_rate": 0.01 } }
 }

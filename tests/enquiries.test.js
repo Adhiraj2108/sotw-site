@@ -1,14 +1,15 @@
-import { test } from 'node:test';
+import { test, afterEach, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import worker from '../cloudflare/enquiries-worker.js';
 import { validateEnquiry } from '../src/lib/enquiry.js';
+afterEach(() => mock.restoreAll());
 const origin = 'https://offthewall.studio';
 const valid = () => ({ submissionId: crypto.randomUUID(), name: 'Test Person', company: 'Test Studio', email: 'test@example.com', website: 'example.com', projectInfo: 'A website project for our studio.', services: ['Web Design'], referral: '', budget: 'Under $3,000', launchDate: 'Next month' });
 function setup({ mail = true, failMail = false } = {}) {
   const records = new Map(), sent = [], pending = [];
   let version = 0;
   const env = {
-    ALLOWED_ORIGINS: origin, MAIL_FROM: mail ? 'notifications@offthewall.studio' : '',
+    ALLOWED_ORIGINS: origin, MAIL_FROM: 'forms@notify.offthewall.studio', RESEND_API_KEY: mail ? 'test-secret' : '',
     RATE_LIMITER: { limit: async () => ({ success: true }) },
     ENQUIRIES: {
       async get(key) { const v = records.get(key); return v ? { ...v, json: async () => JSON.parse(v.text) } : null; },
@@ -21,8 +22,17 @@ function setup({ mail = true, failMail = false } = {}) {
       },
       async list() { return { objects: [...records].map(([key,v]) => ({ key, customMetadata: v.customMetadata })), truncated: false }; },
     },
-    EMAIL: { async send(message) { if (failMail) throw new Error('Unavailable'); sent.push(message); return { messageId: 'test-message' }; } },
   };
+  mock.method(globalThis, 'fetch', async (url, options) => {
+    assert.equal(url, 'https://api.resend.com/emails');
+    assert(records.size > 0, 'R2 must save before sending');
+    assert.equal(options.headers.Authorization, 'Bearer test-secret');
+    const message = JSON.parse(options.body);
+    assert.equal(options.headers['Idempotency-Key'], `enquiry/${JSON.parse([...records.values()][0].text).id}`);
+    if (failMail) return Response.json({ message: 'Unavailable' }, { status: 503 });
+    sent.push(message);
+    return Response.json({ id: 'test-message' });
+  });
   const ctx = { waitUntil: promise => pending.push(promise) };
   const request = (body, customOrigin = origin) => new Request('https://api.example/submit', { method: 'POST', headers: { Origin: customOrigin, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   const submit = body => worker.fetch(request(body), env, ctx);
@@ -43,7 +53,8 @@ test('successful receipt persists data and sends an escaped notification with re
   const s = setup(); const data = { ...valid(), projectInfo: '<img src=x onerror=alert(1)>' };
   const res = await s.submit(data); assert.equal(res.status, 201); await s.drain();
   assert.equal(s.records.size, 1); assert.equal(s.sent.length, 1);
-  assert.equal(s.sent[0].to, 'hello@offthewall.studio'); assert.equal(s.sent[0].replyTo, data.email);
+  assert.equal(s.sent[0].from, 'Studio Off The Wall <forms@notify.offthewall.studio>');
+  assert.deepEqual(s.sent[0].to, ['hello@offthewall.studio']); assert.equal(s.sent[0].reply_to, data.email);
   assert(!s.sent[0].html.includes('<img')); assert(s.sent[0].html.includes('&lt;img'));
   assert.equal(JSON.parse([...s.records.values()][0].text).notification.status, 'sent');
 });
@@ -61,7 +72,7 @@ test('email failure leaves an acknowledged, durable receipt and retry state', as
   assert.equal(record.notification.status, 'pending'); assert.equal(record.notification.attempts, 1);
   record.notification.nextAttemptAt = 0;
   s.records.get(`submissions/${data.submissionId}.json`).text = JSON.stringify(record);
-  s.env.EMAIL.send = async m => { s.sent.push(m); return { messageId: 'retried' }; };
+  mock.method(globalThis, 'fetch', async (url, options) => { s.sent.push(JSON.parse(options.body)); return Response.json({ id: 'retried' }); });
   await worker.scheduled({}, s.env);
   assert.equal(s.sent.length, 1); assert.equal(JSON.parse([...s.records.values()][0].text).notification.status, 'sent');
 });
@@ -81,4 +92,13 @@ test('rejects disallowed origins, honeypots, malformed JSON, oversized bodies an
   assert.equal((await s.submit({ ...valid(), projectInfo: 'a'.repeat(25000) })).status, 413);
   s.env.RATE_LIMITER.limit = async () => ({ success: false });
   assert.equal((await s.submit(valid())).status, 429); assert.equal(s.records.size, 0);
+});
+
+test('provider success without a message ID stays pending for retry', async () => {
+  const s = setup();
+  mock.method(globalThis, 'fetch', async () => Response.json({}));
+  assert.equal((await s.submit(valid())).status, 201); await s.drain();
+  const record = JSON.parse([...s.records.values()][0].text);
+  assert.equal(record.notification.status, 'pending');
+  assert.equal(record.notification.attempts, 1);
 });

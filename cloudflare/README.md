@@ -18,7 +18,7 @@ The Astro website is deployed as Worker `sotw-website` with Workers Static Asset
 
 `website-worker.js` and `website-worker-metadata.json` describe the delivery Worker. The compatibility date uses 2026-11-09 because Cloudflare's UTC date at deployment was still 9 November. Future deployments must upload a new static asset manifest and include the resulting completion token in `assets.jwt` instead of `keep_assets`; module-only changes may retain the existing assets. Upload generated `dist` files excluding `dist/media` (already delivered by R2). The alternate deployment URL is https://sotw-website.rae-social-agency.workers.dev.
 
-The production contact form now saves enquiries through the deployed backend. Email notifications remain pending until a verified sender is configured; see `ENQUIRIES.md`.
+The production contact form now saves enquiries through the deployed backend. Resend notifications are enabled and live Gmail delivery has been verified; see `ENQUIRIES.md`.
 
 ## Automatic deployment from GitHub
 

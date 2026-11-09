@@ -7,7 +7,7 @@ const metadata = record => ({ contentType: 'application/json', cacheControl: 'no
 const options = (record, onlyIf) => ({ httpMetadata: metadata(record), customMetadata: { notification: record.notification.status }, ...(onlyIf ? { onlyIf } : {}) });
 
 async function notify(env, key) {
-  if (!env.EMAIL || !env.MAIL_FROM) return;
+  if (!env.RESEND_API_KEY || !env.MAIL_FROM) return;
   const object = await env.ENQUIRIES.get(key);
   if (!object) return;
   const record = await object.json();
@@ -20,15 +20,30 @@ async function notify(env, key) {
   if (!lease) return;
   try {
     const rows = [ ['Reference', record.id], ['Received (UTC)', record.createdAt], ...Object.entries(record.data).map(([key, value]) => [key, Array.isArray(value) ? value.join(', ') : value]) ];
-    const result = await env.EMAIL.send({
-      from: { email: env.MAIL_FROM, name: 'Studio Off The Wall' },
-      to: 'hello@offthewall.studio',
-      replyTo: record.data.email,
-      subject: `New project enquiry from ${record.data.name}`,
-      text: rows.map(([key, value]) => `${key}: ${value}`).join('\n\n'),
-      html: `<h1>New project enquiry</h1>${rows.map(([key, value]) => `<p><strong>${encode(key)}</strong><br>${encode(value).replace(/\n/g, '<br>')}</p>`).join('')}`,
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+        'Idempotency-Key': `enquiry/${record.id}`,
+      },
+      signal: AbortSignal.timeout(10000),
+      body: JSON.stringify({
+        from: `Studio Off The Wall <${env.MAIL_FROM}>`,
+        to: ['hello@offthewall.studio'],
+        reply_to: record.data.email,
+        subject: `New project enquiry from ${record.data.name}`,
+        text: rows.map(([key, value]) => `${key}: ${value}`).join('\n\n'),
+        html: `<h1>New project enquiry</h1>${rows.map(([key, value]) => `<p><strong>${encode(key)}</strong><br>${encode(value).replace(/\n/g, '<br>')}</p>`).join('')}`,
+      }),
     });
-    record.notification = { status: 'sent', sentAt: new Date().toISOString(), messageId: result.messageId };
+    if (!response.ok) {
+      await response.body?.cancel();
+      throw Object.assign(new Error('Resend request failed'), { code: `RESEND_HTTP_${response.status}` });
+    }
+    const result = await response.json();
+    if (typeof result.id !== 'string' || !result.id) throw Object.assign(new Error('Missing Resend message ID'), { code: 'RESEND_INVALID_RESPONSE' });
+    record.notification = { status: 'sent', provider: 'resend', sentAt: new Date().toISOString(), messageId: result.id };
   } catch (error) {
     const attempts = (record.notification.attempts || 0) + 1;
     record.notification = { status: 'pending', attempts, nextAttemptAt: now + Math.min(3600000, 60000 * 2 ** Math.min(attempts, 6)) };
@@ -93,7 +108,7 @@ export default {
     }
   },
   async scheduled(event, env) {
-    if (!env.EMAIL || !env.MAIL_FROM) return;
+    if (!env.RESEND_API_KEY || !env.MAIL_FROM) return;
     let cursor;
     do {
       const page = await env.ENQUIRIES.list({ prefix: 'submissions/', limit: 100, cursor, include: ['customMetadata'] });

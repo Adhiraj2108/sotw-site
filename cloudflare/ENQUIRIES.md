@@ -2,7 +2,9 @@
 
 ## Current status
 
-The submission Worker and private storage are deployed. Email delivery is **not enabled yet**: there is no verified sending domain in the connected Cloudflare account, and the email-management endpoints are outside the current connection's permissions. The `MAIL_FROM` binding is empty and there is no `EMAIL` binding. Every receipt remains notification `pending` until sending is configured. Tests cover sending and retry behavior with a simulated email binding; live inbox delivery remains to be verified.
+The submission Worker, private R2 storage, and Resend email notifications are deployed. The Worker uses the existing `RESEND_API_KEY` Cloudflare secret; the key is never sent to the browser or committed to the repository. `MAIL_FROM` is `forms@notify.offthewall.studio`, the recipient is fixed to `hello@offthewall.studio`, and Reply-To is the validated visitor email.
+
+A labelled enquiry submitted through the live contact form on 10 November 2026 was saved as `submissions/54ec788f-5752-4cc3-a5c8-d296a0f20b2e.json`. Its notification status is `sent`, and the matching notification was confirmed in the Gmail inbox with the correct From, To, Reply-To and signing domain. The test record and email are retained as verification evidence.
 
 ## Submission and storage
 
@@ -14,15 +16,15 @@ Each record contains the normalized form fields, receipt UUID, UTC creation time
 
 Both browser and server use `src/lib/enquiry.js` for required fields, maximum lengths, email/website format and service/budget allowlists. Website URLs without a scheme are normalized to HTTPS. At least one service and an explicit budget selection are required. Submission UUIDs and conditional R2 writes prevent duplicate records on retries. Origin restrictions, a honeypot, request size limits and a rate limiter (five requests per minute per IP per Cloudflare location) provide basic abuse controls.
 
-## Enable email notifications
+## Email notifications
 
-1. Configure a sending domain in Cloudflare Email Service and verify its DNS records. Sending domain onboarding requires that domain to use Cloudflare DNS. Do not change existing mail routing/MX records as a shortcut.
-2. Verify `hello@offthewall.studio` as a destination if required by the account's sending mode.
-3. Add `{ "type": "send_email", "name": "EMAIL", "destination_address": "hello@offthewall.studio" }` to the deployment metadata's bindings.
-4. Set `MAIL_FROM` to a verified sender such as `notifications@offthewall.studio`. Keep the destination fixed in code. The visitor's email is Reply-To, never the sender.
-5. Redeploy the Worker and send one labelled test enquiry; confirm the record changes to sent and the notification arrives in the inbox.
+The Worker calls `POST https://api.resend.com/emails` only after saving the enquiry to R2. It sends both plain text and escaped HTML, sets Reply-To to the visitor, and records Resend's message ID after an accepted response. HTTP errors, timeouts, or missing message IDs keep the enquiry pending for retry. Provider error bodies and API keys are not logged.
 
-The Worker sends notifications after storing enquiries. Email failures retain the enquiry and retry with exponential backoff (up to one hour); a cron runs every five minutes. Concurrent notification attempts use conditional R2 writes to acquire a lease. Delivery is at least once: if sending succeeds but saving the sent status fails, a retry can send a duplicate. Existing pending enquiries will be processed after email configuration is enabled.
+Resend must have `notify.offthewall.studio` verified for sending. Keep its sending DNS records alongside the existing Google Workspace mail configuration. No Cloudflare Email Sending binding or paid upgrade is needed.
+
+Configure `RESEND_API_KEY` as a Cloudflare Worker secret on **sotw-enquiries**, not on the website Worker. Deployment metadata retains existing `secret_text` bindings with `keep_bindings`. Never add the actual key to metadata or frontend environment variables.
+
+Email failures retain the enquiry and retry with exponential backoff (up to one hour); a cron runs every five minutes. Concurrent notification attempts use conditional R2 writes to acquire a lease. Requests include the stable `Idempotency-Key: enquiry/<UUID>` header, which Resend deduplicates for 24 hours. Delivery remains at least once beyond that provider window if saving the sent status fails after an accepted send. Existing pending enquiries are processed once configuration is available.
 
 ## Deployment and development
 
