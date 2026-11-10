@@ -8,7 +8,7 @@ A labelled enquiry submitted through the live contact form on 10 November 2026 w
 
 ## Submission and storage
 
-Endpoint: `https://sotw-enquiries.rae-social-agency.workers.dev/submit`
+Endpoint: `https://forms.offthewall.studio/submit`
 
 Records are private JSON objects under `submissions/<UUID>.json` in the **sotw-enquiries** R2 bucket, Cloudflare account `c59e71abfb131f5a984a17c911fcf794`. View/download them through Cloudflare Dashboard → R2 → sotw-enquiries → submissions. The Worker exposes no reading or listing API and is separate from the public media Worker. Objects remain until removed by the account owner.
 

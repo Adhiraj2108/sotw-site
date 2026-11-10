@@ -3,7 +3,7 @@ import Page from "../layouts/Page.astro";
 import Footer from "../components/Footer.astro";
 import StudioInfo from "../components/StudioInfo.astro";
 import { services, budgets, limits } from "../lib/enquiry.js";
-const endpoint = import.meta.env.PUBLIC_ENQUIRY_ENDPOINT || "https://sotw-enquiries.rae-social-agency.workers.dev/submit";
+const endpoint = import.meta.env.PUBLIC_ENQUIRY_ENDPOINT || "https://forms.offthewall.studio/submit";
 const fields = [
   ["Full Name*", "Name", "Jane Smith", "text", "name"],
   ["Company Name*", "Company", "Acme Corporation", "text", "company"],

@@ -1,27 +1,27 @@
 {
   "hero": [
     {
-      "src": "https://sotw-assets.rae-social-agency.workers.dev/media/hero-1.webp",
+      "src": "https://assets.offthewall.studio/media/hero-1.webp",
       "alt": "hyphen tracks homers project snapshot"
     },
     {
-      "src": "https://sotw-assets.rae-social-agency.workers.dev/media/hero-2.webp",
+      "src": "https://assets.offthewall.studio/media/hero-2.webp",
       "alt": "m'braun residence project snapshot"
     },
     {
-      "src": "https://sotw-assets.rae-social-agency.workers.dev/media/hero-3.webp",
+      "src": "https://assets.offthewall.studio/media/hero-3.webp",
       "alt": "homers project snapshot 1"
     },
     {
-      "src": "https://sotw-assets.rae-social-agency.workers.dev/media/hero-4.webp",
+      "src": "https://assets.offthewall.studio/media/hero-4.webp",
       "alt": "homers project snapshot 2"
     },
     {
-      "src": "https://sotw-assets.rae-social-agency.workers.dev/media/hero-5.png",
+      "src": "https://assets.offthewall.studio/media/hero-5.png",
       "alt": "simple things project snapshot"
     }
   ],
-  "mark": "https://sotw-assets.rae-social-agency.workers.dev/media/studio-mark.png",
+  "mark": "https://assets.offthewall.studio/media/studio-mark.png",
   "about": [
     "An independent design studio based in New Delhi, India.",
     "We help entrepreneurs & businesses on how their brand, and website should work, look and feel.",
@@ -40,134 +40,134 @@
       "name": "Eleos",
       "desc": "Los Angeles based real-easte developers building affordable housing with market speed and discipline.",
       "image": {
-        "src": "https://sotw-assets.rae-social-agency.workers.dev/media/project-1.png",
+        "src": "https://assets.offthewall.studio/media/project-1.png",
         "alt": "Eleos cover image"
       },
-      "video": "https://sotw-assets.rae-social-agency.workers.dev/media/project-video-1/playlist.m3u8"
+      "video": "https://assets.offthewall.studio/media/project-video-1/playlist.m3u8"
     },
     {
       "url": "https://www.whatmattersagency.com/",
       "name": "What Matters Agency",
       "desc": "Portfolio website for a leading Australian media house ideating, creating, and distributing content for Australia’s biggest hospitality groups.",
       "image": {
-        "src": "https://sotw-assets.rae-social-agency.workers.dev/media/project-2.png",
+        "src": "https://assets.offthewall.studio/media/project-2.png",
         "alt": "What Matters Agency cover image"
       },
-      "video": "https://sotw-assets.rae-social-agency.workers.dev/media/project-video-2/playlist.m3u8"
+      "video": "https://assets.offthewall.studio/media/project-video-2/playlist.m3u8"
     },
     {
       "url": "https://www.arielchilds.com/",
       "name": "Ariel Childs Coaching",
       "desc": "A transformative coaching experience designed to empower individuals to step into their fullest potential.",
       "image": {
-        "src": "https://sotw-assets.rae-social-agency.workers.dev/media/project-3.png",
+        "src": "https://assets.offthewall.studio/media/project-3.png",
         "alt": "Simple things cover image"
       },
-      "video": "https://sotw-assets.rae-social-agency.workers.dev/media/project-video-3/playlist.m3u8"
+      "video": "https://assets.offthewall.studio/media/project-video-3/playlist.m3u8"
     },
     {
       "url": "https://www.buysimplethings.org/",
       "name": "Simple-things",
       "desc": "An exceptional brand of curated essential products designed to elevate the daily routine.",
       "image": {
-        "src": "https://sotw-assets.rae-social-agency.workers.dev/media/project-4.png",
+        "src": "https://assets.offthewall.studio/media/project-4.png",
         "alt": "Simple things cover image"
       },
-      "video": "https://sotw-assets.rae-social-agency.workers.dev/media/project-video-4/playlist.m3u8"
+      "video": "https://assets.offthewall.studio/media/project-video-4/playlist.m3u8"
     },
     {
       "url": "http://mbraunresidence.framer.website/",
       "name": "M'Braun Residence",
       "desc": "New York based luxurious summer retreat.",
       "image": {
-        "src": "https://sotw-assets.rae-social-agency.workers.dev/media/project-5.png",
+        "src": "https://assets.offthewall.studio/media/project-5.png",
         "alt": "M'braun residence cover image"
       },
-      "video": "https://sotw-assets.rae-social-agency.workers.dev/media/project-video-5/playlist.m3u8"
+      "video": "https://assets.offthewall.studio/media/project-video-5/playlist.m3u8"
     },
     {
       "url": "http://hugo-estates.framer.website/",
       "name": "Hugo Estates",
       "desc": "Curated homes where unparalleled luxury meets exceptional living. ",
       "image": {
-        "src": "https://sotw-assets.rae-social-agency.workers.dev/media/project-6.png",
+        "src": "https://assets.offthewall.studio/media/project-6.png",
         "alt": "Hugo Estates cover image"
       },
-      "video": "https://sotw-assets.rae-social-agency.workers.dev/media/project-video-6/playlist.m3u8"
+      "video": "https://assets.offthewall.studio/media/project-video-6/playlist.m3u8"
     }
   ],
   "gallery": [
     {
       "type": "img",
-      "src": "https://sotw-assets.rae-social-agency.workers.dev/media/exploration-1.png"
+      "src": "https://assets.offthewall.studio/media/exploration-1.png"
     },
     {
       "type": "video",
-      "src": "https://sotw-assets.rae-social-agency.workers.dev/media/exploration-2.mp4"
+      "src": "https://assets.offthewall.studio/media/exploration-2.mp4"
     },
     {
       "type": "img",
-      "src": "https://sotw-assets.rae-social-agency.workers.dev/media/exploration-3.png"
+      "src": "https://assets.offthewall.studio/media/exploration-3.png"
     },
     {
       "type": "video",
-      "src": "https://sotw-assets.rae-social-agency.workers.dev/media/exploration-4.mp4"
+      "src": "https://assets.offthewall.studio/media/exploration-4.mp4"
     },
     {
       "type": "img",
-      "src": "https://sotw-assets.rae-social-agency.workers.dev/media/exploration-5.png"
+      "src": "https://assets.offthewall.studio/media/exploration-5.png"
     },
     {
       "type": "animation",
-      "src": "https://sotw-assets.rae-social-agency.workers.dev/media/exploration-6.json"
+      "src": "https://assets.offthewall.studio/media/exploration-6.json"
     },
     {
       "type": "img",
-      "src": "https://sotw-assets.rae-social-agency.workers.dev/media/exploration-7.png"
+      "src": "https://assets.offthewall.studio/media/exploration-7.png"
     },
     {
       "type": "img",
-      "src": "https://sotw-assets.rae-social-agency.workers.dev/media/exploration-8.webp"
+      "src": "https://assets.offthewall.studio/media/exploration-8.webp"
     },
     {
       "type": "animation",
-      "src": "https://sotw-assets.rae-social-agency.workers.dev/media/exploration-9.json"
+      "src": "https://assets.offthewall.studio/media/exploration-9.json"
     },
     {
       "type": "img",
-      "src": "https://sotw-assets.rae-social-agency.workers.dev/media/exploration-10.png"
+      "src": "https://assets.offthewall.studio/media/exploration-10.png"
     },
     {
       "type": "animation",
-      "src": "https://sotw-assets.rae-social-agency.workers.dev/media/exploration-11.json"
+      "src": "https://assets.offthewall.studio/media/exploration-11.json"
     },
     {
       "type": "img",
-      "src": "https://sotw-assets.rae-social-agency.workers.dev/media/exploration-12.png"
+      "src": "https://assets.offthewall.studio/media/exploration-12.png"
     },
     {
       "type": "animation",
-      "src": "https://sotw-assets.rae-social-agency.workers.dev/media/exploration-13.json"
+      "src": "https://assets.offthewall.studio/media/exploration-13.json"
     },
     {
       "type": "video",
-      "src": "https://sotw-assets.rae-social-agency.workers.dev/media/exploration-14.mp4"
+      "src": "https://assets.offthewall.studio/media/exploration-14.mp4"
     },
     {
       "type": "img",
-      "src": "https://sotw-assets.rae-social-agency.workers.dev/media/exploration-15.png"
+      "src": "https://assets.offthewall.studio/media/exploration-15.png"
     },
     {
       "type": "animation",
-      "src": "https://sotw-assets.rae-social-agency.workers.dev/media/exploration-16.json"
+      "src": "https://assets.offthewall.studio/media/exploration-16.json"
     },
     {
       "type": "video",
-      "src": "https://sotw-assets.rae-social-agency.workers.dev/media/exploration-17.mp4"
+      "src": "https://assets.offthewall.studio/media/exploration-17.mp4"
     },
     {
       "type": "animation",
-      "src": "https://sotw-assets.rae-social-agency.workers.dev/media/exploration-18.json"
+      "src": "https://assets.offthewall.studio/media/exploration-18.json"
     }
   ]
 }

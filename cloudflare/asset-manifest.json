@@ -1231,7 +1231,7 @@
       "sha256": "a71c6aea530af1802fdfdd5b39b9cee2811ad93cc282c9bb5656538fdddaa42b"
     }
   ],
-  "origin": "https://sotw-assets.rae-social-agency.workers.dev",
+  "origin": "https://assets.offthewall.studio",
   "bucket": "sotw-assets",
   "worker": "sotw-assets"
 }

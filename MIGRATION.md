@@ -56,7 +56,7 @@ The mobile studio information bar keeps its location and social links on screen.
 
 ## Cloudflare media hosting — 9 November 2026
 
-All media references now use `https://sotw-assets.rae-social-agency.workers.dev`, backed by the `sotw-assets` R2 bucket. This includes the 41 local media files, four font files, three SEO/icon images and all playlists and segments for six project video streams (243 files total). HLS resolutions and relative segment paths are preserved. The source mappings and object checksums are recorded in `cloudflare/asset-manifest.json`; deployment details are in `cloudflare/README.md`. This supersedes the external font, SEO image and Bunny playback locations described above. The Astro site deployment is unchanged by this media migration.
+All media references now use `https://assets.offthewall.studio`, backed by the `sotw-assets` R2 bucket. This includes the 41 local media files, four font files, three SEO/icon images and all playlists and segments for six project video streams (243 files total). HLS resolutions and relative segment paths are preserved. The source mappings and object checksums are recorded in `cloudflare/asset-manifest.json`; deployment details are in `cloudflare/README.md`. This supersedes the external font, SEO image and Bunny playback locations described above. The Astro site deployment is unchanged by this media migration.
 
 ## Custom domain cutover — 10 November 2026
 
