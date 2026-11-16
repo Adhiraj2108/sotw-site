@@ -3,6 +3,7 @@ import "../styles/base.css";
 import home from "../data/home-seo.json";
 import contact from "../data/contact-seo.json";
 import Nav from "../components/Nav.astro";
+import PostHog from "../components/posthog.astro";
 const seo = Astro.props.contact ? contact : home;
 ---
 
@@ -10,6 +11,7 @@ const seo = Astro.props.contact ? contact : home;
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <PostHog />
     <link rel="preconnect" href="https://assets.offthewall.studio" crossorigin />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{seo.title}</title>
