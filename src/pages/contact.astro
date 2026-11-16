@@ -175,8 +175,27 @@ const fields = [
       validateServices();
       submissionId = crypto.randomUUID();
       status.textContent = "Thank you! Your enquiry has been received. We’ll be in touch soon.";
+      window.posthog?.capture("enquiry_submitted", {
+        service_count: result.data.services.length,
+        budget: result.data.budget,
+      });
+      window.posthog?.logger?.info("enquiry submission completed", {
+        service_count: result.data.services.length,
+        budget: result.data.budget,
+      });
       status.focus();
     } catch (error) {
+      const failureType = error instanceof DOMException && error.name === "TimeoutError"
+        ? "timeout"
+        : error instanceof TypeError
+          ? "network"
+          : "service";
+      window.posthog?.capture("enquiry_submission_failed", {
+        failure_type: failureType,
+      });
+      window.posthog?.logger?.error("enquiry submission failed", {
+        failure_type: failureType,
+      });
       status.textContent = error instanceof Error && error.name !== "TimeoutError" && error.name !== "TypeError"
         ? error.message : "We couldn’t confirm your enquiry. Please try again, or email hello@offthewall.studio.";
     } finally {
