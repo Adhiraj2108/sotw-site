@@ -1,4 +1,4 @@
-import { validateEnquiry } from '../src/lib/enquiry.js';
+import { validateEnquiry, minFillTimeMs } from '../src/lib/enquiry.js';
 
 const MAX_BYTES = 24000;
 const json = (body, status, headers) => Response.json(body, { status, headers });
@@ -92,6 +92,8 @@ export default {
       catch (error) { return json({ error: error.message === 'TOO_LARGE' ? 'Please shorten your project details.' : 'Invalid form data.' }, error.message === 'TOO_LARGE' ? 413 : 400, headers); }
       if (!input || typeof input !== 'object' || Array.isArray(input)) return json({ error: 'Invalid form data.' }, 400, headers);
       if (input.companyWebsite) return json({ error: 'Unable to submit. Please email hello@offthewall.studio.' }, 422, headers);
+      // Time trap: humans cannot complete this form in a few seconds. Older pages that omit the field are still accepted.
+      if (input.fillTimeMs !== undefined && !(Number.isFinite(input.fillTimeMs) && input.fillTimeMs >= minFillTimeMs)) return json({ error: 'That was quick! Please check your details and try again.' }, 422, headers);
       const validated = validateEnquiry(input);
       if (!validated.valid) return json({ error: 'Please check the highlighted fields.', errors: validated.errors }, 422, headers);
       if (!/^[a-f\d]{8}-[a-f\d]{4}-4[a-f\d]{3}-[89ab][a-f\d]{3}-[a-f\d]{12}$/i.test(input.submissionId || '')) return json({ error: 'Please refresh the page and try again.' }, 422, headers);

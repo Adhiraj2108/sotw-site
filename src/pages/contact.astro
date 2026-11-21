@@ -2,13 +2,13 @@
 import Page from "../layouts/Page.astro";
 import Footer from "../components/Footer.astro";
 import StudioInfo from "../components/StudioInfo.astro";
-import { services, budgets, limits } from "../lib/enquiry.js";
+import { services, budgets, limits, wordLimits } from "../lib/enquiry.js";
 const endpoint = import.meta.env.PUBLIC_ENQUIRY_ENDPOINT || "https://forms.offthewall.studio/submit";
 const fields = [
-  ["Full Name*", "Name", "Jane Smith", "text", "name"],
-  ["Company Name*", "Company", "Acme Corporation", "text", "company"],
-  ["Email*", "Email", "jane@acme.com", "email", "email"],
-  ["Website (if you got one)", "Website URL", "www.acme.com", "text", "website"],
+  { label: "Full Name*", name: "Name", placeholder: "Jane Smith", key: "name", autocomplete: "name", autocapitalize: "words" },
+  { label: "Company Name*", name: "Company", placeholder: "Acme Corporation", key: "company", autocomplete: "organization", autocapitalize: "words" },
+  { label: "Email*", name: "Email", placeholder: "jane@acme.com", key: "email", type: "email", autocomplete: "email", inputmode: "email", autocapitalize: "off", spellcheck: "false", extra: "email-suggestion" },
+  { label: "Website (if you got one)", name: "Website URL", placeholder: "www.acme.com", key: "website", autocomplete: "url", inputmode: "url", autocapitalize: "off", spellcheck: "false", optional: true },
 ];
 ---
 
@@ -23,38 +23,50 @@ const fields = [
           to set up an introductory call.
         </p>
       </div>
-      <form
-        action={endpoint}
-        method="post"
-      >
+      <form action={endpoint} method="post" novalidate>
         <fieldset>
           <legend>Contact details</legend>
-          {fields.map(([label, name, placeholder, type, key]) => (
+          {fields.map(f => (
             <label class="contact-field">
-              <span>{label}</span>
-              <input {name} {type} {placeholder} data-field={key} maxlength={limits[key]} required={key !== "website"} aria-describedby={key + "-error"} />
-              <span class="field-error" id={key + "-error"} data-error-for={key}></span>
+              <span>{f.label}</span>
+              <span class="control"><input
+                name={f.name}
+                type={f.type || "text"}
+                placeholder={f.placeholder}
+                data-field={f.key}
+                maxlength={limits[f.key]}
+                required={!f.optional}
+                autocomplete={f.autocomplete}
+                inputmode={f.inputmode}
+                autocapitalize={f.autocapitalize}
+                spellcheck={f.spellcheck}
+                aria-describedby={[f.key + "-error", f.extra].filter(Boolean).join(" ")}
+              /></span>
+              <span class="field-error" id={f.key + "-error"} data-error-for={f.key}></span>
+              {f.extra && <span class="field-suggestion" id={f.extra} aria-live="polite"></span>}
             </label>
           ))}
         </fieldset>
         <label class="block">
           Project information*
-          <textarea
+          <span class="control"><textarea
             name="Project info"
             data-field="projectInfo"
             maxlength={limits.projectInfo}
-            aria-describedby="projectInfo-error"
+            aria-describedby="projectInfo-error projectInfo-count"
+            autocapitalize="sentences"
             required
             placeholder="What does your company do? How long have you been in business? What are your goals for this collaboration?"
-          ></textarea>
+          ></textarea></span>
           <span class="field-error" id="projectInfo-error" data-error-for="projectInfo"></span>
+          <span class="count" id="projectInfo-count">0 / {wordLimits.projectInfo} words</span>
         </label>
-        <fieldset>
+        <fieldset aria-describedby="services-hint services-error" data-group="services">
           <legend>What services are you looking for?*</legend>
-          <p class="hint">Select all services you want to work on.</p>
+          <p class="hint" id="services-hint">Select all services you want to work on.</p>
           {services.map((s, i) => (
             <label class="check">
-              <input name="services" value={s} type="checkbox" aria-describedby="services-error" />
+              <input name="services" value={s} type="checkbox" />
               {i === 0 ? "Brand " + s : s}
             </label>
           ))}
@@ -62,35 +74,38 @@ const fields = [
         </fieldset>
         <label class="block">
           How did you hear about us?
-          <input
+          <span class="control"><input
             name="Recc"
             data-field="referral"
             maxlength={limits.referral}
             aria-describedby="referral-error"
+            autocomplete="off"
             placeholder="Was it Twitter? Or a friend recommended us?"
-          />
+          /></span>
           <span class="field-error" id="referral-error" data-error-for="referral"></span>
         </label>
         <label class="block">
           Estimated budget*
-          <select name="Budget" data-field="budget" aria-describedby="budget-error" required>
+          <span class="control"><select name="Budget" data-field="budget" aria-describedby="budget-error" required>
             <option value="" disabled selected>
               Select
             </option>
             {budgets.map((b) => <option>{b}</option>)}
-          </select>
+          </select></span>
           <span class="field-error" id="budget-error" data-error-for="budget"></span>
         </label>
         <label class="block">
           When do you wish to launch?*
-          <input
+          <span class="control"><input
             name="Launch date"
             data-field="launchDate"
             maxlength={limits.launchDate}
             aria-describedby="launchDate-error"
+            autocomplete="off"
+            enterkeyhint="send"
             required
             placeholder="Share the launch date or timeline"
-          />
+          /></span>
           <span class="field-error" id="launchDate-error" data-error-for="launchDate"></span>
         </label>
         <label class="honeypot" aria-hidden="true">
@@ -109,70 +124,193 @@ const fields = [
   <Footer contact />
 </Page>
 <script>
-  import { validateEnquiry } from "../lib/enquiry.js";
+  import { validateEnquiry, suggestEmail, fieldOrder, wordLimits, countWords, minFillTimeMs } from "../lib/enquiry.js";
   const form = document.querySelector<HTMLFormElement>(".enquiry form")!;
   const button = form.querySelector<HTMLButtonElement>("button[type=submit]")!;
   const status = form.querySelector<HTMLElement>("[role=status]")!;
   const checkboxes = [...form.querySelectorAll<HTMLInputElement>('input[name="services"]')];
+  const suggestion = form.querySelector<HTMLElement>("#email-suggestion")!;
+  const counter = form.querySelector<HTMLElement>("#projectInfo-count")!;
+  const draftKey = "sotw-enquiry-draft";
+  const draftFields = ["Name", "Company", "Email", "Website URL", "Project info", "Recc", "Budget", "Launch date"];
+  const loadedAt = performance.now();
+  let fillTimeOffset = 0;
+  const touched = new Set<string>();
   let submissionId = crypto.randomUUID();
   let submitting = false;
-  function validateServices() {
-    checkboxes[0].setCustomValidity(checkboxes.some(c => c.checked) ? "" : "Please select at least one service.");
+  let sent = false;
+  let draftTimer = 0;
+
+  const control = (key: string) => key === "services"
+    ? checkboxes[0]
+    : form.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(`[data-field="${key}"]`);
+
+  function collect() {
+    const fields = new FormData(form);
+    const text = (name: string) => (fields.get(name) as string | null) ?? "";
+    return {
+      name: text("Name"), company: text("Company"), email: text("Email"),
+      website: text("Website URL"), projectInfo: text("Project info"),
+      services: fields.getAll("services") as string[], referral: text("Recc"),
+      budget: text("Budget"), launchDate: text("Launch date"),
+      companyWebsite: text("companyWebsite"),
+    };
   }
-  validateServices();
-  checkboxes.forEach(c => c.addEventListener("change", validateServices));
-  function showErrors(errors: Record<string, string>) {
-    form.querySelectorAll<HTMLElement>("[data-error-for]").forEach(el => {
-      el.textContent = errors[el.dataset.errorFor!] || "";
-    });
-    form.querySelectorAll<HTMLElement>("[data-field]").forEach(el => {
-      el.setAttribute("aria-invalid", String(Boolean(errors[el.dataset.field!])));
-    });
-    checkboxes.forEach(c => c.setAttribute("aria-invalid", String(Boolean(errors.services))));
-    const first = Object.keys(errors)[0];
-    if (first) (first === "services" ? checkboxes[0] : form.querySelector<HTMLElement>(`[data-field="${first}"]`))?.focus();
+
+  function setError(key: string, message = "") {
+    const error = form.querySelector<HTMLElement>(`[data-error-for="${key}"]`);
+    if (error) error.textContent = message;
+    const targets = key === "services" ? checkboxes : [control(key)].filter(Boolean) as HTMLElement[];
+    targets.forEach(el => message ? el.setAttribute("aria-invalid", "true") : el.removeAttribute("aria-invalid"));
   }
+
+  function showErrors(errors: Record<string, string>, focus = true) {
+    fieldOrder.forEach(key => setError(key, errors[key]));
+    const first = fieldOrder.find(key => errors[key]);
+    if (first && focus) control(first)?.focus();
+  }
+
+  // Validate one field: shown after the visitor leaves it, then live once an error is visible.
+  function validateField(key: string) {
+    setError(key, validateEnquiry(collect()).errors[key]);
+  }
+
+  function updateSuggestion() {
+    const email = (control("email") as HTMLInputElement).value.trim();
+    const suggested = suggestEmail(email);
+    suggestion.replaceChildren();
+    if (!suggested) return;
+    const apply = document.createElement("button");
+    apply.type = "button";
+    apply.textContent = suggested;
+    apply.addEventListener("click", () => {
+      const input = control("email") as HTMLInputElement;
+      input.value = suggested;
+      suggestion.replaceChildren();
+      validateField("email");
+      saveDraft();
+      input.focus();
+    });
+    suggestion.append("Did you mean ", apply, "?");
+  }
+
+  function updateCounter() {
+    const words = countWords((control("projectInfo") as HTMLTextAreaElement).value);
+    const max = wordLimits.projectInfo;
+    counter.textContent = `${words.toLocaleString("en")} / ${max} words`;
+    counter.classList.toggle("over", words > max);
+  }
+
+  function saveDraft() {
+    window.clearTimeout(draftTimer);
+    draftTimer = window.setTimeout(() => {
+      try {
+        const fields = new FormData(form);
+        const draft = Object.fromEntries(draftFields.map(name => [name, fields.get(name) ?? ""]));
+        sessionStorage.setItem(draftKey, JSON.stringify({ ...draft, services: fields.getAll("services") }));
+      } catch {}
+    }, 300);
+  }
+
+  function clearDraft() {
+    window.clearTimeout(draftTimer);
+    try { sessionStorage.removeItem(draftKey); } catch {}
+  }
+
+  function restoreDraft() {
+    try {
+      const draft = JSON.parse(sessionStorage.getItem(draftKey) || "null");
+      if (!draft || typeof draft !== "object") return;
+      draftFields.forEach(name => {
+        const el = form.elements.namedItem(name) as HTMLInputElement | null;
+        if (el && typeof draft[name] === "string" && draft[name]) el.value = draft[name];
+      });
+      if (Array.isArray(draft.services)) checkboxes.forEach(c => { c.checked = draft.services.includes(c.value); });
+      // A restored draft was typed earlier, so it should never trip the server's speed check.
+      fillTimeOffset = minFillTimeMs;
+    } catch {}
+  }
+
+  function setButton(state: "idle" | "sending" | "sent") {
+    sent = state === "sent";
+    button.disabled = state !== "idle";
+    button.textContent = state === "sending" ? "Sending…" : state === "sent" ? "Enquiry Sent" : "Send Enquiry";
+    button.classList.toggle("is-sent", sent);
+  }
+
+  restoreDraft();
+  updateCounter();
+
   form.addEventListener("input", event => {
-    const target = event.target as HTMLElement;
-    if (target.dataset.field) {
-      target.removeAttribute("aria-invalid");
-      const error = form.querySelector<HTMLElement>(`[data-error-for="${target.dataset.field}"]`);
-      if (error) error.textContent = "";
+    const target = event.target as HTMLInputElement;
+    if (target.name === "companyWebsite") return;
+    if (sent) { setButton("idle"); status.textContent = ""; }
+    const key = target.name === "services" ? "services" : target.dataset.field;
+    if (key) {
+      touched.add(key);
+      if (target.getAttribute("aria-invalid") === "true" || (key === "services" && checkboxes[0].getAttribute("aria-invalid") === "true")) validateField(key);
+      if (key === "email") suggestion.replaceChildren();
+      if (key === "projectInfo") {
+        updateCounter();
+        if (counter.classList.contains("over")) validateField(key);
+      }
     }
+    saveDraft();
   });
+
+  form.addEventListener("change", event => {
+    const key = (event.target as HTMLElement).dataset.field;
+    if (key === "budget") validateField(key);
+  });
+
+  form.addEventListener("focusout", event => {
+    const target = event.target as HTMLElement;
+    const key = target.dataset.field;
+    if (key && touched.has(key)) validateField(key);
+    if (key === "email") updateSuggestion();
+    // Validate the service group once focus leaves the whole group.
+    const group = form.querySelector<HTMLElement>('[data-group="services"]')!;
+    if (target.closest('[data-group="services"]') && !group.contains(event.relatedTarget as Node | null) && touched.has("services")) validateField("services");
+  });
+
   form.addEventListener("submit", async event => {
     event.preventDefault();
-    if (submitting) return;
-    const fields = new FormData(form);
-    const payload = {
-      name: fields.get("Name"), company: fields.get("Company"), email: fields.get("Email"),
-      website: fields.get("Website URL"), projectInfo: fields.get("Project info"),
-      services: fields.getAll("services"), referral: fields.get("Recc"),
-      budget: fields.get("Budget"), launchDate: fields.get("Launch date"),
-      companyWebsite: fields.get("companyWebsite"), submissionId,
-    };
+    if (submitting || sent) return;
+    const payload = collect();
     const result = validateEnquiry(payload);
     showErrors(result.errors);
-    if (!result.valid) { status.textContent = "Please check the highlighted fields."; return; }
+    if (!result.valid) {
+      const count = Object.keys(result.errors).length;
+      status.textContent = count === 1 ? "1 field needs your attention." : `${count} fields need your attention.`;
+      return;
+    }
+    if (!navigator.onLine) {
+      status.textContent = "You appear to be offline. Your details are saved here — please reconnect and try again.";
+      return;
+    }
     submitting = true;
-    button.disabled = true;
-    button.textContent = "Sending…";
+    setButton("sending");
     form.setAttribute("aria-busy", "true");
     status.textContent = "Sending your enquiry…";
+    let succeeded = false;
     try {
       const response = await fetch(form.action, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...payload, ...result.data }),
+        body: JSON.stringify({ ...payload, ...result.data, submissionId, fillTimeMs: Math.round(performance.now() - loadedAt + fillTimeOffset) }),
         signal: AbortSignal.timeout(20000),
       });
-      const data = await response.json();
-      if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) {
         if (data.errors) showErrors(data.errors);
-        throw new Error(data.error || "We could not save your enquiry. Please try again.");
+        throw Object.assign(new Error(typeof data.error === "string" ? data.error : "We couldn’t confirm your enquiry. Please try again, or email hello@offthewall.studio."), { name: "ServiceError" });
       }
-      if (!data.ok) throw new Error("We could not confirm your enquiry. Please try again.");
+      succeeded = true;
       form.reset();
-      validateServices();
+      clearDraft();
+      touched.clear();
+      showErrors({}, false);
+      suggestion.replaceChildren();
+      updateCounter();
       submissionId = crypto.randomUUID();
       status.textContent = "Thank you! Your enquiry has been received. We’ll be in touch soon.";
       window.posthog?.capture("enquiry_submitted", {
@@ -196,12 +334,12 @@ const fields = [
       window.posthog?.logger?.error("enquiry submission failed", {
         failure_type: failureType,
       });
-      status.textContent = error instanceof Error && error.name !== "TimeoutError" && error.name !== "TypeError"
-        ? error.message : "We couldn’t confirm your enquiry. Please try again, or email hello@offthewall.studio.";
+      status.textContent = failureType === "service" && error instanceof Error
+        ? error.message
+        : "We couldn’t reach our server. Your details are saved — please try again, or email hello@offthewall.studio.";
     } finally {
       submitting = false;
-      button.disabled = false;
-      button.textContent = "Send Enquiry";
+      setButton(succeeded ? "sent" : "idle");
       form.removeAttribute("aria-busy");
     }
   });
@@ -326,14 +464,48 @@ const fields = [
   .contact-field .field-error {
     display: block;
     margin-top: 6px;
-    color: var(--blue);
+    color: var(--red);
     font: 13px/1.4 Geist, sans-serif;
     text-transform: none;
     letter-spacing: normal;
   }
   .field-error:empty { display: none; }
-  [aria-invalid="true"] { border-color: var(--blue); }
+  [aria-invalid="true"],
+  .control > [aria-invalid="true"] { border-color: var(--red); }
   .cta:disabled { opacity: .65; cursor: wait; }
+  .field-suggestion:empty {
+    display: none;
+  }
+  .field-suggestion,
+  .contact-field .field-suggestion {
+    display: block;
+    margin-top: 6px;
+    font: 13px/1.4 Geist, sans-serif;
+    text-transform: none;
+    color: var(--muted);
+  }
+  .field-suggestion button {
+    font: inherit;
+    color: var(--blue);
+    background: none;
+    border: 0;
+    padding: 0;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .count {
+    display: block;
+    margin-top: 6px;
+    font:
+      12px/1.2 Mono,
+      monospace;
+    color: var(--muted);
+    letter-spacing: normal;
+  }
+  .cta.is-sent:disabled {
+    opacity: 1;
+    cursor: default;
+  }
   .status:empty {
     display: none;
   }
@@ -389,5 +561,80 @@ const fields = [
   }
   .check input {
     accent-color: var(--blue);
+  }
+  /* Error icon: Google Material Symbols Outlined "error", weight 300. */
+  form {
+    --error-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -960 960 960'%3E%3Cpath d='M502.92-300.15q9.39-9.39 9.39-22.93T502.92-346q-9.38-9.38-22.92-9.38-13.54 0-22.92 9.38-9.39 9.38-9.39 22.92 0 13.54 9.39 22.93 9.38 9.38 22.92 9.38 13.54 0 22.92-9.38ZM450-436.92h60v-240h-60v240ZM480.07-100q-78.84 0-148.21-29.92t-120.68-81.21q-51.31-51.29-81.25-120.63Q100-401.1 100-479.93q0-78.84 29.92-148.21t81.21-120.68q51.29-51.31 120.63-81.25Q401.1-860 479.93-860q78.84 0 148.21 29.92t120.68 81.21q51.31 51.29 81.25 120.63Q860-558.9 860-480.07q0 78.84-29.92 148.21t-81.21 120.68q-51.29 51.31-120.63 81.25Q558.9-100 480.07-100Zm-.07-60q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z'/%3E%3C/svg%3E");
+    --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none' stroke='%23777' stroke-width='1.25'%3E%3Cpath d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E");
+  }
+  .control,
+  .contact-field .control {
+    position: relative;
+    display: block;
+    margin-top: 12px;
+    font: inherit;
+    text-transform: none;
+  }
+  .control > :is(input, select, textarea) {
+    margin-top: 0;
+  }
+  .control:has([aria-invalid="true"])::after {
+    content: "";
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    width: 20px;
+    height: 20px;
+    translate: 0 -50%;
+    background: var(--red);
+    -webkit-mask: var(--error-icon) center / contain no-repeat;
+    mask: var(--error-icon) center / contain no-repeat;
+    pointer-events: none;
+  }
+  .control > [aria-invalid="true"]:is(input, textarea) {
+    padding-right: 44px;
+  }
+  .control:has(textarea[aria-invalid="true"])::after {
+    top: 12px;
+    translate: none;
+  }
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 40px;
+    background-image: var(--chevron);
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 12px 8px;
+    cursor: pointer;
+  }
+  select:invalid {
+    color: #999;
+  }
+  select option {
+    color: var(--ink);
+  }
+  .control:has(select[aria-invalid="true"])::after {
+    right: 36px;
+  }
+  .control > select[aria-invalid="true"] {
+    padding-right: 64px;
+  }
+  .field-error[data-error-for="services"]:not(:empty) {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .field-error[data-error-for="services"]:not(:empty)::before {
+    content: "";
+    flex: none;
+    width: 18px;
+    height: 18px;
+    background: var(--red);
+    -webkit-mask: var(--error-icon) center / contain no-repeat;
+    mask: var(--error-icon) center / contain no-repeat;
+  }
+  .count.over {
+    color: var(--red);
   }
 </style>

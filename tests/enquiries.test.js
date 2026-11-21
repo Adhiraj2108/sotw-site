@@ -1,7 +1,7 @@
 import { test, afterEach, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import worker from '../cloudflare/enquiries-worker.js';
-import { validateEnquiry } from '../src/lib/enquiry.js';
+import { validateEnquiry, suggestEmail } from '../src/lib/enquiry.js';
 afterEach(() => mock.restoreAll());
 const origin = 'https://offthewall.studio';
 const valid = () => ({ submissionId: crypto.randomUUID(), name: 'Test Person', company: 'Test Studio', email: 'test@example.com', website: 'example.com', projectInfo: 'A website project for our studio.', services: ['Web Design'], referral: '', budget: 'Under $3,000', launchDate: 'Next month' });
@@ -101,4 +101,41 @@ test('provider success without a message ID stays pending for retry', async () =
   const record = JSON.parse([...s.records.values()][0].text);
   assert.equal(record.notification.status, 'pending');
   assert.equal(record.notification.attempts, 1);
+});
+
+test('validation normalizes input and enforces stricter formats', () => {
+  const r = validateEnquiry({ ...valid(), name: '  Jane​   Smith ', email: 'Jane@ACME.COM', projectInfo: 'Line one is here.\r\n\r\n\r\n\r\nLine two.' });
+  assert.equal(r.valid, true);
+  assert.equal(r.data.name, 'Jane Smith');
+  assert.equal(r.data.email, 'Jane@acme.com');
+  assert.equal(r.data.projectInfo, 'Line one is here.\n\nLine two.');
+  for (const email of ['a@b.c', 'jane..doe@acme.com', 'jane@-acme.com', 'jane@acme', '.jane@acme.com']) {
+    assert.equal(validateEnquiry({ ...valid(), email }).errors.email !== undefined, true, email);
+  }
+  assert.ok(validateEnquiry({ ...valid(), projectInfo: 'Too short' }).errors.projectInfo);
+  assert.ok(validateEnquiry({ ...valid(), name: '12345' }).errors.name);
+  assert.ok(validateEnquiry({ ...valid(), name: 'Visit https://spam.example' }).errors.name);
+  assert.ok(validateEnquiry({ ...valid(), website: 'localhost' }).errors.website);
+  assert.ok(validateEnquiry({ ...valid(), website: 'http://192.168.0.1' }).errors.website);
+  assert.deepEqual(Object.keys(validateEnquiry({ ...valid(), launchDate: '', services: [], name: '' }).errors), ['name', 'services', 'launchDate']);
+});
+
+test('suggests corrections for mistyped common email domains only', () => {
+  assert.equal(suggestEmail('jane@gmial.com'), 'jane@gmail.com');
+  assert.equal(suggestEmail('jane@hotmal.com'), 'jane@hotmail.com');
+  assert.equal(suggestEmail('jane@gmail.com'), '');
+  assert.equal(suggestEmail('jane@acme.studio'), '');
+});
+
+test('rejects submissions completed implausibly fast', async () => {
+  const s = setup();
+  assert.equal((await s.submit({ ...valid(), fillTimeMs: 400 })).status, 422);
+  assert.equal((await s.submit({ ...valid(), fillTimeMs: 'x' })).status, 422);
+  assert.equal(s.records.size, 0);
+  assert.equal((await s.submit({ ...valid(), fillTimeMs: 45000 })).status, 201);
+});
+
+test('project information is limited to 500 words', () => {
+  assert.equal(validateEnquiry({ ...valid(), projectInfo: 'word '.repeat(500) }).valid, true);
+  assert.match(validateEnquiry({ ...valid(), projectInfo: 'word '.repeat(501) }).errors.projectInfo, /500 words/);
 });
